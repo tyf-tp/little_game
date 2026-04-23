@@ -33,14 +33,9 @@
       .screen { display: none !important; }
     }
     
-    /* 横屏时隐藏提示 */
-    @media (orientation: landscape) {
-      #rotate-hint { display: none !important; }
-    }
     .screen { display: none; min-height: 100vh; padding: 20px; }
     .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
     
-    /* 通用按钮 */
     .btn {
       padding: 15px 40px;
       margin: 10px;
@@ -53,9 +48,7 @@
     .btn:active { transform: scale(0.95); }
     .btn-primary { background: #e94560; color: #fff; }
     .btn-secondary { background: #16213e; color: #fff; border: 2px solid #4a9eff; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     
-    /* 输入框 */
     .input {
       width: 280px;
       padding: 15px;
@@ -69,148 +62,107 @@
     }
     .input:focus { border-color: #4a9eff; }
     
-    /* 标题 */
     .title { font-size: 36px; font-weight: bold; margin-bottom: 30px; color: #e94560; text-shadow: 0 0 20px rgba(233,69,96,0.5); }
     .subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
+    .error { color: #e94560; font-size: 14px; margin-top: 10px; }
     
-    /* 游戏容器 */
     #game-container {
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     
-    /* 游戏场景 */
-    #game-area {
-      width: 100%;
-      height: 320px;
-      background: #2a2a4e;
-      border-radius: 15px;
-      position: relative;
-      overflow: hidden;
+    /* 游戏画布 */
+    #game-canvas {
+      background: #5c94fc;
+      border-radius: 10px;
       border: 3px solid #333;
       touch-action: none;
     }
     
-    @media (max-width: 768px) {
-      #game-area {
-        height: 250px;
-      }
-    }
-    
-    /* 场景顶部信息 */
     #scene-header {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
+      padding: 10px;
       font-size: 14px;
-      z-index: 10;
     }
     #scene-name { font-weight: bold; color: #4a9eff; }
-    #inventory-count { color: #666; }
+    #coin-count { color: #ffd700; }
     
-    /* 玩家 */
-    #player {
-      position: absolute;
-      width: 35px;
-      height: 45px;
-      font-size: 32px;
-      text-align: center;
-      transition: left 0.1s, top 0.1s;
-      z-index: 5;
-    }
-    
-    /* 物品 */
-    .item-obj {
-      position: absolute;
-      font-size: 28px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      z-index: 3;
-    }
-    .item-obj:hover { transform: scale(1.2); }
-    .item-obj.collected { display: none; }
-    
-    /* 出口指示 */
-    .exit-indicator {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: rgba(74,158,255,0.3);
-      border: 2px solid #4a9eff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      z-index: 2;
-    }
-    .exit-up { top: 55px; left: 50%; transform: translateX(-50%); }
-    .exit-down { bottom: 5px; left: 50%; transform: translateX(-50%); }
-    .exit-left { left: 5px; top: 50%; transform: translateY(-50%); }
-    .exit-right { right: 5px; top: 50%; transform: translateY(-50%); }
-    
-    /* 控制区 */
-    #controls {
+    /* 移动端控制 */
+    #mobile-controls {
       width: 100%;
-      padding: 15px;
-      display: flex;
+      display: none;
       justify-content: space-between;
-      align-items: center;
+      padding: 15px 10px;
+      margin-top: 10px;
     }
+    @media (max-width: 768px) { #mobile-controls { display: flex; } }
     
-    /* 虚拟摇杆 */
-    #joystick {
+    #dpad {
       display: grid;
       grid-template-columns: repeat(3, 50px);
-      grid-template-rows: repeat(3, 50px);
+      grid-template-rows: repeat(2, 50px);
       gap: 5px;
     }
-    .dir-btn {
+    .dpad-btn {
       width: 50px;
       height: 50px;
-      background: #16213e;
-      border: 2px solid #333;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       color: #fff;
-      cursor: pointer;
+      touch-action: none;
       user-select: none;
-      -webkit-user-select: none;
     }
-    .dir-btn:active { background: #1a3a6e; }
-    .dir-empty { background: transparent; border: none; }
+    .dpad-btn:active { background: rgba(255,255,255,0.4); }
+    .dpad-empty { visibility: hidden; }
     
-    /* 动作按钮 */
-    #action-btns { display: flex; flex-direction: column; gap: 10px; }
+    #action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .action-btn {
-      width: 50px;
-      height: 50px;
-      background: #16213e;
-      border: 2px solid #e94560;
-      border-radius: 10px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+    }
+    #btn-b {
+      background: #e94560;
+      border: 3px solid #ff6b8a;
+    }
+    #btn-a {
+      background: #4a9eff;
+      border: 3px solid #7bb8ff;
     }
     
-    /* 提示 */
-    #tip {
-      text-align: center;
-      color: #666;
+    /* Web端提示 */
+    #web-hint {
+      display: none;
+      background: #0f0f23;
+      padding: 8px 15px;
       font-size: 12px;
-      padding: 10px;
+      color: #4a9eff;
+      text-align: center;
+      width: 100%;
+      border-radius: 5px;
+      margin-top: 10px;
     }
+    @media (min-width: 768px) { #web-hint { display: block; } }
     
     /* 对话框 */
     #dialog-overlay {
@@ -218,8 +170,8 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.7);
       display: none;
-      justify-content: flex-end;
-      padding: 20px;
+      justify-content: center;
+      align-items: center;
       z-index: 100;
     }
     #dialog-overlay.show { display: flex; }
@@ -228,17 +180,30 @@
       border: 2px solid #e94560;
       border-radius: 15px;
       padding: 20px;
-      width: 100%;
-      max-width: 400px;
+      width: 90%;
+      max-width: 350px;
+      text-align: center;
     }
-    #dialog-text { font-size: 16px; line-height: 1.6; margin-bottom: 10px; }
-    #dialog-hint { color: #666; font-size: 12px; text-align: right; }
+    #dialog-text { font-size: 16px; line-height: 1.6; margin-bottom: 15px; }
+    
+    /* 暂停菜单 */
+    #pause-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 150;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #pause-overlay.show { display: flex; }
     
     /* 背包 */
     #inventory-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.9);
       display: none;
       justify-content: center;
       align-items: center;
@@ -255,14 +220,6 @@
       max-height: 70vh;
       overflow-y: auto;
     }
-    #inventory-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    #inventory-title { font-size: 20px; font-weight: bold; }
-    #inventory-close { font-size: 24px; cursor: pointer; color: #e94560; }
     #inventory-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -275,94 +232,12 @@
       text-align: center;
       cursor: pointer;
     }
-    .inv-item:active { background: #1a2a4e; }
     .inv-icon { font-size: 32px; }
     .inv-name { font-size: 11px; margin-top: 5px; color: #fff; }
-    
-    /* 谜题弹窗 */
-    #puzzle-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-    }
-    #puzzle-overlay.show { display: flex; }
-    #puzzle-box {
-      background: #16213e;
-      border: 3px solid #e94560;
-      border-radius: 20px;
-      padding: 25px;
-      width: 90%;
-      max-width: 350px;
-      text-align: center;
-    }
-    #puzzle-title { font-size: 18px; margin-bottom: 15px; color: #e94560; }
-    #puzzle-content { margin: 20px 0; }
-    #puzzle-input {
-      width: 100%;
-      padding: 15px;
-      font-size: 24px;
-      text-align: center;
-      background: #0f0f23;
-      border: 2px solid #333;
-      border-radius: 10px;
-      color: #fff;
-      margin-bottom: 15px;
-    }
-    #puzzle-sequence { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-    .seq-btn {
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
-      background: #0f0f23;
-      border: 2px solid #333;
-      border-radius: 10px;
-      color: #fff;
-      cursor: pointer;
-    }
-    .seq-btn:active, .seq-btn.active { background: #4a9eff; border-color: #4a9eff; }
-    #puzzle-btns { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-    
-    /* Web端键盘提示 */
-    #web-hint {
-      display: none;
-      background: #0f0f23;
-      padding: 8px 15px;
-      font-size: 12px;
-      color: #4a9eff;
-      text-align: center;
-      width: 100%;
-      border-bottom: 1px solid #333;
-    }
-    @media (min-width: 768px) { #web-hint { display: block; } }
-    @media (max-width: 767px) { #web-hint { display: none; } }
-    
-    /* Web端按钮 */
-    #web-btns {
-      display: none;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    @media (min-width: 768px) { #web-btns { display: flex; } }
-    .web-btn {
-      padding: 10px 20px;
-      background: #16213e;
-      border: 2px solid #4a9eff;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    /* 错误提示 */
-    .error { color: #e94560; font-size: 14px; margin-top: 10px; }
   </style>
 </head>
 <body>
-<!-- 强制横屏提示 -->
+<!-- 横屏提示 -->
 <div id="rotate-hint">
   <span>📱</span>
   <p>请将手机旋转至横屏</p>
@@ -405,290 +280,207 @@
 
 <!-- 游戏界面 -->
 <div id="game-screen" class="screen">
-  <div id="web-hint">WASD/方向键移动 | E/空格 交互 | I 背包 | ESC 暂停</div>
   <div id="game-container">
-    <div id="game-area">
-      <div id="scene-header">
-        <span id="scene-name">起始房间</span>
-        <span id="inventory-count">物品: 0</span>
+    <div id="scene-header">
+      <span id="scene-name">第1关</span>
+      <span id="coin-count">金币: 0</span>
+    </div>
+    <canvas id="game-canvas" width="600" height="400"></canvas>
+    <div id="web-hint">方向键/WASD 移动 | 空格/X 跳跃 | Z 加速 | ESC 暂停</div>
+    <div id="mobile-controls">
+      <div id="dpad">
+        <div class="dpad-empty"></div>
+        <div class="dpad-btn" id="btn-up">▲</div>
+        <div class="dpad-empty"></div>
+        <div class="dpad-btn" id="btn-left">◀</div>
+        <div class="dpad-empty"></div>
+        <div class="dpad-btn" id="btn-right">▶</div>
       </div>
-      <div id="player">🧑</div>
-      <!-- 动态生成出口和物品 -->
-      <!-- 交互按钮（靠近物体时显示） -->
-      <div id="interact-btn" onclick="interact()" style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); background:#e94560; color:#fff; padding:12px 30px; border-radius:25px; font-size:16px; font-weight:bold; z-index:20; animation:pulse 1s infinite; cursor:pointer;">
-        🤚 交互
+      <div id="action-buttons">
+        <div class="action-btn" id="btn-b" onclick="toggleInventory()">📦</div>
+        <div class="action-btn" id="btn-a" onclick="playerJump()">🏃</div>
       </div>
     </div>
-    <div id="controls">
-      <!-- 虚拟摇杆（移动端） -->
-      <div id="mobile-joystick">
-        <div id="joystick-base">
-          <div id="joystick-thumb"></div>
-        </div>
-      </div>
-      <div id="action-btns">
-        <div class="action-btn" id="inv-btn" onclick="toggleInventory()">📦</div>
-        <div class="action-btn" id="interact-mobile-btn" style="display:none; background:#e94560;" onclick="interact()">🤚</div>
-        <div class="action-btn" onclick="showPause()">⏸</div>
-      </div>
-    </div>
-    <div id="web-btns">
-      <div class="web-btn" onclick="interact()">🤚 交互 (E)</div>
-      <div class="web-btn" onclick="toggleInventory()">📦 背包 (I)</div>
-      <div class="web-btn" onclick="showPause()">⏸ 暂停</div>
-    </div>
-    <p id="tip">靠近物品后按 E 键交互</p>
   </div>
 </div>
-
-<style>
-@keyframes pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.1); }
-}
-
-/* 虚拟摇杆 */
-#mobile-joystick {
-  position: relative;
-  width: 120px;
-  height: 120px;
-}
-#joystick-base {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background: rgba(255,255,255,0.1);
-  border: 3px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  touch-action: none;
-}
-#joystick-thumb {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  background: rgba(233,69,96,0.8);
-  border: 2px solid #e94560;
-  border-radius: 50%;
-  left: 35px;
-  top: 35px;
-  transition: none;
-}
-@media (min-width: 768px) {
-  #mobile-joystick { display: none; }
-}
-</style>
 
 <!-- 对话框 -->
-<div id="dialog-overlay" onclick="nextDialog()">
+<div id="dialog-overlay">
   <div id="dialog-box">
     <p id="dialog-text"></p>
-    <p id="dialog-hint">点击继续...</p>
-  </div>
-</div>
-
-<!-- 背包 -->
-<div id="inventory-overlay" onclick="event.stopPropagation()">
-  <div id="inventory-box">
-    <div id="inventory-header">
-      <span id="inventory-title">背包</span>
-      <span id="inventory-close" onclick="toggleInventory()">✕</span>
-    </div>
-    <div id="inventory-grid"></div>
-  </div>
-</div>
-
-<!-- 谜题弹窗 -->
-<div id="puzzle-overlay">
-  <div id="puzzle-box">
-    <h3 id="puzzle-title">谜题</h3>
-    <div id="puzzle-content"></div>
-    <div id="puzzle-btns">
-      <button class="btn btn-secondary" onclick="closePuzzle()">取消</button>
-      <button class="btn btn-primary" onclick="submitPuzzle()">确认</button>
-    </div>
+    <button class="btn btn-primary" onclick="closeDialog()">确定</button>
   </div>
 </div>
 
 <!-- 暂停菜单 -->
-<div id="pause-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:150; justify-content:center; align-items:center; flex-direction:column;">
+<div id="pause-overlay">
   <h2 style="margin-bottom:20px;">游戏暂停</h2>
   <button class="btn btn-primary" onclick="closePause()">继续</button>
   <button class="btn btn-secondary" onclick="saveGame()">保存</button>
   <button class="btn btn-secondary" onclick="quitGame()">退出</button>
 </div>
 
+<!-- 背包 -->
+<div id="inventory-overlay">
+  <div id="inventory-box">
+    <div id="inventory-header">
+      <span id="inventory-title">背包</span>
+      <span onclick="toggleInventory()" style="cursor:pointer; font-size:24px; color:#e94560;">✕</span>
+    </div>
+    <div id="inventory-grid"></div>
+  </div>
+</div>
+
 <script>
-// ==================== 数据定义 ====================
-const SCENES = {
-  // 第一关：起始房间
-  ch1_start: {
-    name: "封闭房间",
-    background: "#3a3a5e",
-    exits: [
-      { dir: "down", target: "ch1_door", x: 180, y: 400, locked: false }
+// ==================== 游戏常量 ====================
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 400;
+const GRAVITY = 0.5;
+const JUMP_FORCE = -12;
+const MOVE_SPEED = 4;
+const TILE_SIZE = 32;
+
+// ==================== 关卡数据 ====================
+const LEVELS = {
+  level1: {
+    name: "第1关 - 草地",
+    background: "#5c94fc",
+    width: 1200,
+    height: 400,
+    playerStart: { x: 50, y: 300 },
+    platforms: [
+      // 地面
+      { x: 0, y: 368, w: 400, h: 32, type: "ground" },
+      { x: 450, y: 368, w: 200, h: 32, type: "ground" },
+      { x: 700, y: 368, w: 500, h: 32, type: "ground" },
+      // 台阶
+      { x: 150, y: 300, w: 64, h: 32, type: "brick" },
+      { x: 250, y: 250, w: 96, h: 32, type: "brick" },
+      { x: 380, y: 200, w: 64, h: 32, type: "brick" },
+      // 悬浮平台
+      { x: 500, y: 280, w: 96, h: 32, type: "brick" },
+      { x: 650, y: 220, w: 64, h: 32, type: "brick" },
+      { x: 800, y: 280, w: 128, h: 32, type: "brick" },
+      { x: 950, y: 180, w: 96, h: 32, type: "brick" },
     ],
-    objects: [
-      { id: "bed", name: "床", sprite: "🛏️", x: 50, y: 200, w: 80, h: 60, dialog: "一张简陋的床，床上有便签..." },
-      { id: "note", name: "便签", sprite: "📝", x: 150, y: 150, w: 40, h: 40, collect: "note", dialog: "便签上写着：'密码藏在画里'" },
-      { id: "painting", name: "挂画", sprite: "🖼️", x: 280, y: 180, w: 60, h: 50, dialog: "一幅风景画，太阳是红色的..." },
-      { id: "drawer", name: "抽屉", sprite: "🗄️", x: 50, y: 320, w: 50, h: 50, collect: "flashlight", dialog: "打开抽屉，找到手电筒！" },
-      { id: "underbed", name: "床底", sprite: "🔑", x: 80, y: 350, w: 40, h: 30, collect: "key", dialog: "在黑暗中摸索...找到了一把钥匙！" }
+    // 隐藏方块（问号砖）
+    hiddenBlocks: [
+      { x: 180, y: 268, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 280, y: 218, w: 32, h: 32, contains: "mushroom", revealed: false },
+      { x: 520, y: 248, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 670, y: 188, w: 32, h: 32, contains: "coin", revealed: false },
+    ],
+    coins: [
+      { x: 100, y: 330 },
+      { x: 200, y: 330 },
+      { x: 320, y: 210 },
+      { x: 400, y: 160 },
+      { x: 550, y: 240 },
+      { x: 750, y: 180 },
+      { x: 850, y: 240 },
+      { x: 1000, y: 140 },
+    ],
+    enemies: [
+      { x: 200, y: 336, type: "goomba" },
+      { x: 500, y: 336, type: "goomba" },
+      { x: 800, y: 336, type: "goomba" },
+    ],
+    goal: { x: 1100, y: 320, w: 64, h: 48 },
+    pipes: [
+      { x: 350, y: 320, h: 48 },
+      { x: 600, y: 320, h: 48 },
     ]
   },
-  // 走廊
-  ch1_door: {
-    name: "中央走廊",
-    background: "#2a2a4e",
-    exits: [
-      { dir: "up", target: "ch1_start", x: 180, y: 60, locked: false },
-      { dir: "left", target: "ch2_library", x: 20, y: 220, locked: false },
-      { dir: "right", target: "ch2_storage", x: 340, y: 220, locked: false },
-      { dir: "down", target: "ch2_basement", x: 180, y: 400, locked: true }
-    ],
-    objects: [
-      { id: "lever", name: "拉杆", sprite: "🎛️", x: 180, y: 220, w: 50, h: 50, puzzle: "lever", dialog: "三个拉杆，需要按正确顺序拉动！" },
-      { id: "statue", name: "雕像", sprite: "🗿", x: 300, y: 320, w: 50, h: 60, dialog: "奇怪的雕像，眼睛似乎在注视着你..." }
-    ]
-  },
-  // 第二关：图书馆
-  ch2_library: {
-    name: "图书馆",
-    background: "#4a3a2e",
-    exits: [
-      { dir: "right", target: "ch1_door", x: 350, y: 220, locked: false }
-    ],
-    objects: [
-      { id: "bookshelf", name: "书架", sprite: "📚", x: 100, y: 150, w: 80, h: 60, collect: "book", dialog: "找到一本魔法书，上面写着：'用光芒照亮答案'" },
-      { id: "candle", name: "蜡烛", sprite: "🕯️", x: 250, y: 280, w: 40, h: 40, collect: "candle", dialog: "一根精美的蜡烛" }
-    ]
-  },
-  // 储藏室
-  ch2_storage: {
-    name: "储藏室",
-    background: "#3a4a3a",
-    exits: [
-      { dir: "left", target: "ch1_door", x: 20, y: 220, locked: false }
-    ],
-    objects: [
-      { id: "photo", name: "旧照片", sprite: "🖼️", x: 120, y: 180, w: 60, h: 50, dialog: "照片里有一座时钟，指针指向 2:10" },
-      { id: "hidden", name: "暗格", sprite: "📦", x: 250, y: 300, w: 50, h: 50, collect: "silver_key", dialog: "发现暗格，获得银钥匙！" }
-    ]
-  },
-  // 地下室
-  ch2_basement: {
-    name: "地下室",
+  level2: {
+    name: "第2关 - 地下",
     background: "#1a1a2e",
-    exits: [
-      { dir: "up", target: "ch1_door", x: 180, y: 60, locked: false }
+    width: 1200,
+    height: 400,
+    playerStart: { x: 50, y: 300 },
+    platforms: [
+      // 地面
+      { x: 0, y: 368, w: 300, h: 32, type: "ground" },
+      { x: 350, y: 368, w: 150, h: 32, type: "ground" },
+      { x: 550, y: 368, w: 650, h: 32, type: "ground" },
+      // 阶梯
+      { x: 100, y: 300, w: 64, h: 32, type: "brick" },
+      { x: 200, y: 250, w: 64, h: 32, type: "brick" },
+      { x: 300, y: 200, w: 64, h: 32, type: "brick" },
+      // 高处平台
+      { x: 450, y: 280, w: 96, h: 32, type: "brick" },
+      { x: 600, y: 220, w: 128, h: 32, type: "brick" },
+      { x: 800, y: 280, w: 96, h: 32, type: "brick" },
+      { x: 950, y: 200, w: 128, h: 32, type: "brick" },
     ],
-    objects: [
-      { id: "rune", name: "符文墙壁", sprite: "🔮", x: 150, y: 200, w: 80, h: 60, puzzle: "rune", dialog: "墙上刻着符文，输入密码：小时_分钟" },
-      { id: "pedestal", name: "基座", sprite: "🏛️", x: 180, y: 320, w: 60, h: 50, dialog: "一个古老的石制基座" }
-    ]
-  },
-  // 第三关：中央区域
-  ch3_center: {
-    name: "深渊中央",
-    background: "#2a1a2e",
-    exits: [
-      { dir: "left", target: "ch3_secret", x: 20, y: 220, locked: false },
-      { dir: "right", target: "ch3_treasure", x: 350, y: 220, locked: false },
-      { dir: "down", target: "ch3_end", x: 180, y: 400, locked: true }
+    hiddenBlocks: [
+      { x: 120, y: 268, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 220, y: 218, w: 32, h: 32, contains: "flower", revealed: false },
+      { x: 470, y: 248, w: 32, h: 32, contains: "mushroom", revealed: false },
+      { x: 620, y: 188, w: 32, h: 32, contains: "coin", revealed: false },
     ],
-    objects: [
-      { id: "crystal", name: "蓝色水晶", sprite: "💎", x: 200, y: 280, w: 40, h: 40, collect: "blue_gem", dialog: "闪烁着蓝光的水晶" },
-      { id: "altar", name: "祭坛", sprite: "⛩️", x: 150, y: 150, w: 80, h: 60, puzzle: "altar", dialog: "需要放入三颗宝石才能打开通道" }
-    ]
-  },
-  // 密室
-  ch3_secret: {
-    name: "密室",
-    background: "#1a2a2a",
-    exits: [
-      { dir: "right", target: "ch3_center", x: 350, y: 220, locked: false }
+    coins: [
+      { x: 50, y: 330 },
+      { x: 150, y: 260 },
+      { x: 250, y: 210 },
+      { x: 400, y: 160 },
+      { x: 500, y: 240 },
+      { x: 700, y: 180 },
+      { x: 850, y: 240 },
+      { x: 1000, y: 160 },
     ],
-    objects: [
-      { id: "compass", name: "罗盘", sprite: "🧭", x: 150, y: 250, w: 40, h: 40, collect: "compass", dialog: "精致的罗盘，指针指向北方" },
-      { id: "safe", name: "保险箱", sprite: "🔐", x: 250, y: 200, w: 60, h: 60, puzzle: "safe", dialog: "输入密码打开保险箱" }
-    ]
-  },
-  // 宝藏室
-  ch3_treasure: {
-    name: "宝藏室",
-    background: "#4a3a1a",
-    exits: [
-      { dir: "left", target: "ch3_center", x: 20, y: 220, locked: false }
+    enemies: [
+      { x: 100, y: 336, type: "goomba" },
+      { x: 400, y: 336, type: "goomba" },
+      { x: 700, y: 336, type: "koopa" },
+      { x: 900, y: 336, type: "goomba" },
     ],
-    objects: [
-      { id: "red_gem", name: "红色宝石", sprite: "🔴", x: 100, y: 280, w: 40, h: 40, collect: "red_gem", dialog: "红宝石，闪烁着炽热的光芒" },
-      { id: "green_gem", name: "绿色宝石", sprite: "🟢", x: 180, y: 280, w: 40, h: 40, collect: "green_gem", dialog: "绿宝石，充满生机" },
-      { id: "tablet", name: "石碑", sprite: "📜", x: 280, y: 180, w: 60, h: 50, dialog: "铭文：'红在东，绿在西，蓝在北，三色归位'" }
+    goal: { x: 1100, y: 320, w: 64, h: 48 },
+    pipes: [
+      { x: 280, y: 320, h: 48 },
+      { x: 500, y: 320, h: 48 },
+      { x: 750, y: 320, h: 48 },
     ]
-  },
-  // 结局
-  ch3_end: {
-    name: "出口",
-    background: "#3a5a3a",
-    exits: [],
-    objects: [
-      { id: "door", name: "最终之门", sprite: "🚪", x: 150, y: 200, w: 80, h: 80, dialog: "Congratulations! 你逃出了谜境！", ending: true }
-    ]
-  }
-};
-
-const ITEMS = {
-  note: { name: "便签", icon: "📝", desc: "上面写着：'密码藏在画里'" },
-  flashlight: { name: "手电筒", icon: "🔦", desc: "可以照亮黑暗的地方" },
-  key: { name: "铜钥匙", icon: "🔑", desc: "打开铁门的钥匙" },
-  book: { name: "魔法书", icon: "📖", desc: "用光芒照亮答案" },
-  candle: { name: "蜡烛", icon: "🕯️", desc: "点燃后可以照亮黑暗" },
-  silver_key: { name: "银钥匙", icon: "🗝️", desc: "更高级的钥匙" },
-  blue_gem: { name: "蓝色水晶", icon: "💎", desc: "闪烁着蓝光" },
-  red_gem: { name: "红色宝石", icon: "🔴", desc: "炽热的红光" },
-  green_gem: { name: "绿色宝石", icon: "🟢", desc: "生机勃勃" },
-  compass: { name: "罗盘", icon: "🧭", desc: "指向北方" }
-};
-
-const PUZZLES = {
-  lever: {
-    title: "拉杆谜题",
-    type: "sequence",
-    correct: ["A", "B", "A", "B"],
-    hint: "按 A-B-A-B 顺序拉动"
-  },
-  rune: {
-    title: "符文密码",
-    type: "code",
-    answer: "210",
-    hint: "答案是：小时_分钟（看时钟）"
-  },
-  safe: {
-    title: "保险箱",
-    type: "code",
-    answer: "218",
-    hint: "注意照片里的人影数量"
-  },
-  altar: {
-    title: "祭坛",
-    type: "sequence",
-    correct: ["red", "blue", "green"],
-    hint: "按 红→蓝→绿 顺序放入"
   }
 };
 
 // ==================== 游戏状态 ====================
 let currentUser = null;
-let player = { x: 180, y: 350 };
-let currentScene = "ch1_start";
-let inventory = [];
-let flags = {};
-let dialogQueue = [];
-let dialogIndex = 0;
-let showDialogFlag = false;
-let currentPuzzle = null;
-let puzzleSequence = [];
-let currentPuzzleType = null;
-let nearObject = null;
+let currentLevel = "level1";
+let canvas, ctx;
+let gameRunning = false;
+let animationId = null;
+
+// 玩家状态
+let player = {
+  x: 50, y: 300,
+  vx: 0, vy: 0,
+  width: 28, height: 32,
+  onGround: false,
+  facing: 1, // 1 = 右, -1 = 左
+  coins: 0,
+  inventory: [],
+  poweredUp: false,
+  invincible: false,
+  invincibleTimer: 0
+};
+
+// 关卡数据（运行时）
+let platforms = [];
+let hiddenBlocks = [];
+let coins = [];
+let enemies = [];
+let particles = [];
+
+// 相机
+let camera = { x: 0 };
+
+// 按键状态
+let keys = {
+  left: false,
+  right: false,
+  jump: false,
+  sprint: false
+};
 
 // ==================== 初始化 ====================
 function init() {
@@ -698,14 +490,10 @@ function init() {
 }
 
 function checkAuth() {
-  // 不再自动登录，每次都要输入密码
-  // 但尝试填充记住的用户名
   const savedUsername = localStorage.getItem("puzzle_game_remember_user");
   const savedPassword = localStorage.getItem("puzzle_game_remember_pass");
   
-  if (savedUsername) {
-    document.getElementById("login-username").value = savedUsername;
-  }
+  if (savedUsername) document.getElementById("login-username").value = savedUsername;
   if (savedPassword) {
     document.getElementById("login-password").value = savedPassword;
     document.getElementById("remember-me").checked = true;
@@ -716,102 +504,78 @@ function checkAuth() {
 
 function setupKeyboard() {
   document.addEventListener("keydown", (e) => {
-    if (document.getElementById("dialog-overlay").classList.contains("show")) {
-      if (e.key === " " || e.key === "Enter") nextDialog();
+    if (document.getElementById("dialog-overlay").classList.contains("show")) return;
+    if (document.getElementById("inventory-overlay").classList.contains("show")) {
+      if (e.key === "Escape") toggleInventory();
       return;
     }
-    if (document.getElementById("inventory-overlay").classList.contains("show")) {
-      if (e.key === "Escape" || e.key === "i") toggleInventory();
+    if (document.getElementById("pause-overlay").classList.contains("show")) {
+      if (e.key === "Escape") closePause();
       return;
     }
     
     switch (e.key.toLowerCase()) {
-      case "w": case "arrowup": move("up"); break;
-      case "s": case "arrowdown": move("down"); break;
-      case "a": case "arrowleft": move("left"); break;
-      case "d": case "arrowright": move("right"); break;
-      case "e": case " ": interact(); break;
-      case "i": toggleInventory(); break;
+      case "a": case "arrowleft": keys.left = true; break;
+      case "d": case "arrowright": keys.right = true; break;
+      case "w": case " ": case "x":
+        if (!keys.jump && player.onGround) playerJump();
+        keys.jump = true;
+        break;
+      case "z": keys.sprint = true; break;
       case "escape": showPause(); break;
+      case "i": toggleInventory(); break;
+    }
+  });
+  
+  document.addEventListener("keyup", (e) => {
+    switch (e.key.toLowerCase()) {
+      case "a": case "arrowleft": keys.left = false; break;
+      case "d": case "arrowright": keys.right = false; break;
+      case "w": case " ": case "x": keys.jump = false; break;
+      case "z": keys.sprint = false; break;
     }
   });
 }
 
 function setupMobileControls() {
-  const joystickBase = document.getElementById("joystick-base");
-  const joystickThumb = document.getElementById("joystick-thumb");
-  let moveInterval = null;
-  let currentDir = null;
+  const btnLeft = document.getElementById("btn-left");
+  const btnRight = document.getElementById("btn-right");
+  const btnUp = document.getElementById("btn-up");
+  const btnA = document.getElementById("btn-a");
   
-  function handleJoystick(clientX, clientY) {
-    const rect = joystickBase.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    let dx = clientX - centerX;
-    let dy = clientY - centerY;
-    
-    const maxDist = rect.width / 2 - 25;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    
-    if (dist > maxDist) {
-      dx = dx / dist * maxDist;
-      dy = dy / dist * maxDist;
-    }
-    
-    joystickThumb.style.left = (35 + dx) + "px";
-    joystickThumb.style.top = (35 + dy) + "px";
-    
-    // 判断方向
-    let dir = null;
-    if (dist > 15) {
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-      if (angle > -45 && angle <= 45) dir = "right";
-      else if (angle > 45 && angle <= 135) dir = "down";
-      else if (angle > -135 && angle <= -45) dir = "up";
-      else dir = "left";
-    }
-    
-    if (dir !== currentDir) {
-      currentDir = dir;
-      if (moveInterval) {
-        clearInterval(moveInterval);
-        moveInterval = null;
-      }
-      if (dir) {
-        moveInterval = setInterval(() => move(dir), 100);
-      }
-    }
+  // 移动按钮
+  function handleTouch(btn, key, isPressed) {
+    btn.addEventListener(isPressed ? "touchstart" : "touchend", (e) => {
+      e.preventDefault();
+      keys[key] = isPressed;
+    }, { passive: false });
+    btn.addEventListener(isPressed ? "mousedown" : "mouseup", () => {
+      keys[key] = isPressed;
+    });
   }
   
-  joystickBase.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    handleJoystick(touch.clientX, touch.clientY);
-  });
+  handleTouch(btnLeft, "left", true);
+  handleTouch(btnRight, "right", true);
+  handleTouch(btnLeft.parentElement, "left", false);
+  handleTouch(btnRight.parentElement, "right", false);
   
-  joystickBase.addEventListener("touchmove", (e) => {
+  // 跳跃按钮
+  btnA.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    const touch = e.touches[0];
-    handleJoystick(touch.clientX, touch.clientY);
-  });
-  
-  joystickBase.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    joystickThumb.style.left = "35px";
-    joystickThumb.style.top = "35px";
-    currentDir = null;
-    if (moveInterval) {
-      clearInterval(moveInterval);
-      moveInterval = null;
-    }
-  });
+    if (player.onGround) playerJump();
+  }, { passive: false });
 }
 
 // ==================== 屏幕切换 ====================
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  
+  if (id === "game-screen" && !gameRunning) {
+    startGameLoop();
+  } else if (id !== "game-screen" && gameRunning) {
+    stopGameLoop();
+  }
 }
 
 // ==================== 认证 ====================
@@ -830,7 +594,6 @@ function login() {
   if (users[username] && users[username].password === password) {
     currentUser = { username, created: users[username].created };
     
-    // 记住密码功能
     if (remember) {
       localStorage.setItem("puzzle_game_remember_user", username);
       localStorage.setItem("puzzle_game_remember_pass", password);
@@ -881,25 +644,27 @@ function register() {
 
 function logout() {
   currentUser = null;
-  localStorage.removeItem("puzzle_game_user");
-  // 保留记住的用户名密码，只清除登录状态
   showScreen("login-screen");
 }
 
 // ==================== 游戏逻辑 ====================
 function startGame() {
-  // 重置游戏状态
-  player = { x: 180, y: 350 };
-  currentScene = "ch1_start";
-  inventory = [];
-  flags = {};
-  dialogQueue = [];
-  dialogIndex = 0;
-  puzzleSequence = [];
-  nearObject = null;
+  player = {
+    x: 50, y: 300,
+    vx: 0, vy: 0,
+    width: 28, height: 32,
+    onGround: false,
+    facing: 1,
+    coins: 0,
+    inventory: [],
+    poweredUp: false,
+    invincible: false,
+    invincibleTimer: 0
+  };
   
-  loadScene();
+  loadLevel(currentLevel);
   showScreen("game-screen");
+  updateUI();
 }
 
 function loadGame() {
@@ -907,20 +672,488 @@ function loadGame() {
   const saves = JSON.parse(localStorage.getItem(`save_${currentUser.username}`) || "null");
   if (saves) {
     player = saves.player;
-    currentScene = saves.scene;
-    inventory = saves.inventory;
-    flags = saves.flags || {};
-    loadScene();
+    currentLevel = saves.level || "level1";
+    loadLevel(currentLevel);
     showScreen("game-screen");
+    updateUI();
   } else {
     startGame();
   }
 }
 
+function loadLevel(levelId) {
+  const level = LEVELS[levelId];
+  if (!level) return;
+  
+  // 初始化平台
+  platforms = level.platforms.map(p => ({...p}));
+  
+  // 初始化隐藏方块
+  hiddenBlocks = level.hiddenBlocks.map(b => ({...b}));
+  
+  // 初始化金币
+  coins = level.coins.map(c => ({...c, collected: false}));
+  
+  // 初始化敌人
+  enemies = level.enemies.map(e => ({
+    ...e,
+    vx: -1,
+    y: e.y,
+    width: 28,
+    height: 28,
+    alive: true,
+    walkDist: 0
+  }));
+  
+  // 重置玩家位置
+  player.x = level.playerStart.x;
+  player.y = level.playerStart.y;
+  player.vx = 0;
+  player.vy = 0;
+  player.onGround = false;
+  
+  // 重置相机
+  camera.x = 0;
+  
+  // 清空粒子
+  particles = [];
+  
+  // 设置画布背景
+  canvas = document.getElementById("game-canvas");
+  ctx = canvas.getContext("2d");
+}
+
+function startGameLoop() {
+  gameRunning = true;
+  gameLoop();
+}
+
+function stopGameLoop() {
+  gameRunning = false;
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+
+function gameLoop() {
+  if (!gameRunning) return;
+  
+  update();
+  render();
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  const speed = keys.sprint ? MOVE_SPEED * 1.5 : MOVE_SPEED;
+  
+  // 水平移动
+  if (keys.left) {
+    player.vx = -speed;
+    player.facing = -1;
+  } else if (keys.right) {
+    player.vx = speed;
+    player.facing = 1;
+  } else {
+    player.vx *= 0.8;
+    if (Math.abs(player.vx) < 0.1) player.vx = 0;
+  }
+  
+  // 跳跃（如果需要）
+  // 重力
+  player.vy += GRAVITY;
+  if (player.vy > 15) player.vy = 15;
+  
+  // 移动和碰撞
+  player.x += player.vx;
+  player.y += player.vy;
+  
+  // 平台碰撞
+  player.onGround = false;
+  for (const plat of platforms) {
+    if (rectCollision(player, plat)) {
+      // 从上面落下
+      if (player.vy > 0 && player.y + player.height - player.vy <= plat.y + 5) {
+        player.y = plat.y - player.height;
+        player.vy = 0;
+        player.onGround = true;
+      }
+      // 从下面撞到
+      else if (player.vy < 0 && player.y - player.vy >= plat.y + plat.h - 5) {
+        player.y = plat.y + plat.h;
+        player.vy = 0;
+      }
+      // 左右碰撞
+      else if (player.vx > 0) {
+        player.x = plat.x - player.width;
+      } else if (player.vx < 0) {
+        player.x = plat.x + plat.w;
+      }
+    }
+  }
+  
+  // 隐藏方块碰撞
+  for (const block of hiddenBlocks) {
+    if (!block.revealed) continue;
+    if (rectCollision(player, block)) {
+      if (player.vy > 0 && player.y + player.height - player.vy <= block.y + 5) {
+        player.y = block.y - player.height;
+        player.vy = 0;
+        player.onGround = true;
+      }
+    }
+  }
+  
+  // 头顶撞隐藏方块
+  for (const block of hiddenBlocks) {
+    if (player.vy < 0) {
+      const headBox = { x: player.x, y: player.y - player.vy - 5, width: player.width, height: 10 };
+      if (rectCollision(headBox, block)) {
+        revealBlock(block);
+        player.vy = 0;
+      }
+    }
+  }
+  
+  // 金币碰撞
+  for (const coin of coins) {
+    if (coin.collected) continue;
+    if (rectCollision(player, { x: coin.x, y: coin.y, width: 24, height: 24 })) {
+      coin.collected = true;
+      player.coins++;
+      createParticles(coin.x + 12, coin.y + 12, "#ffd700", 5);
+      updateUI();
+    }
+  }
+  
+  // 敌人AI
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+    
+    enemy.x += enemy.vx;
+    enemy.walkDist += Math.abs(enemy.vx);
+    
+    // 敌人掉落检测
+    enemy.y += 10; // 快速下落检测
+    let onPlatform = false;
+    for (const plat of platforms) {
+      if (rectCollision({ x: enemy.x, y: enemy.y, width: enemy.width, height: enemy.height }, plat)) {
+        enemy.y = plat.y - enemy.height;
+        onPlatform = true;
+        break;
+      }
+    }
+    
+    // 敌人碰到边界反向
+    if (onPlatform) {
+      for (const plat of platforms) {
+        if (enemy.x <= plat.x || enemy.x + enemy.width >= plat.x + plat.w) {
+          if (Math.abs(enemy.x - plat.x) < 5 || Math.abs(enemy.x + enemy.width - plat.x - plat.w) < 5) {
+            enemy.vx *= -1;
+          }
+        }
+      }
+    }
+    enemy.y -= 10;
+    
+    // 玩家踩敌人
+    if (player.vy > 0 && rectCollision(player, enemy)) {
+      if (player.y + player.height - player.vy <= enemy.y + 10) {
+        enemy.alive = false;
+        player.vy = JUMP_FORCE * 0.6;
+        createParticles(enemy.x + 14, enemy.y + 14, "#8B4513", 8);
+      } else if (!player.invincible) {
+        hitPlayer();
+      }
+    } else if (!player.invincible && rectCollision(player, enemy)) {
+      hitPlayer();
+    }
+  }
+  
+  // 粒子更新
+  particles = particles.filter(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.2;
+    p.life--;
+    return p.life > 0;
+  });
+  
+  // 无敌时间
+  if (player.invincible) {
+    player.invincibleTimer--;
+    if (player.invincibleTimer <= 0) {
+      player.invincible = false;
+    }
+  }
+  
+  // 相机跟随
+  const targetCam = player.x - CANVAS_WIDTH / 3;
+  camera.x = Math.max(0, Math.min(targetCam, (LEVELS[currentLevel]?.width || CANVAS_WIDTH) - CANVAS_WIDTH));
+  
+  // 边界检测
+  if (player.x < 0) player.x = 0;
+  if (player.y > CANVAS_HEIGHT) {
+    // 掉落了
+    hitPlayer();
+    player.x = LEVELS[currentLevel].playerStart.x;
+    player.y = LEVELS[currentLevel].playerStart.y;
+    player.vy = 0;
+  }
+  
+  // 到达终点
+  const level = LEVELS[currentLevel];
+  if (level && rectCollision(player, level.goal)) {
+    nextLevel();
+  }
+}
+
+function revealBlock(block) {
+  block.revealed = true;
+  createParticles(block.x + 16, block.y + 16, "#ffd700", 8);
+  
+  if (block.contains === "coin") {
+    player.coins++;
+    updateUI();
+  } else if (block.contains === "mushroom") {
+    player.poweredUp = true;
+    player.height = 44;
+  } else if (block.contains === "flower") {
+    player.poweredUp = true;
+    player.height = 44;
+  }
+}
+
+function playerJump() {
+  if (player.onGround) {
+    player.vy = JUMP_FORCE;
+    player.onGround = false;
+  }
+}
+
+function hitPlayer() {
+  if (player.invincible) return;
+  
+  if (player.poweredUp) {
+    player.poweredUp = false;
+    player.height = 32;
+    player.invincible = true;
+    player.invincibleTimer = 120;
+  } else {
+    // 死亡，重生
+    player.x = LEVELS[currentLevel].playerStart.x;
+    player.y = LEVELS[currentLevel].playerStart.y;
+    player.vy = 0;
+    player.invincible = true;
+    player.invincibleTimer = 120;
+  }
+}
+
+function nextLevel() {
+  if (currentLevel === "level1") {
+    currentLevel = "level2";
+    loadLevel(currentLevel);
+    updateUI();
+    showDialog("进入第2关！");
+  } else {
+    showDialog("🎉 恭喜通关！\n\n金币：" + player.coins);
+  }
+}
+
+function createParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6 - 2,
+      color,
+      size: Math.random() * 4 + 2,
+      life: 30
+    });
+  }
+}
+
+function rectCollision(a, b) {
+  return a.x < b.x + b.w &&
+         a.x + a.width > b.x &&
+         a.y < b.y + b.h &&
+         a.y + a.height > b.y;
+}
+
+// ==================== 渲染 ====================
+function render() {
+  const level = LEVELS[currentLevel];
+  if (!level) return;
+  
+  // 清空画布
+  ctx.fillStyle = level.background;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  
+  ctx.save();
+  ctx.translate(-camera.x, 0);
+  
+  // 绘制地面
+  for (const plat of platforms) {
+    if (plat.type === "ground") {
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+      ctx.fillStyle = "#228B22";
+      ctx.fillRect(plat.x, plat.y, plat.w, 8);
+    } else {
+      ctx.fillStyle = "#CD853F";
+      ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+      ctx.strokeStyle = "#8B4513";
+      ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
+      // 砖块纹理
+      ctx.fillStyle = "#DEB887";
+      for (let i = 0; i < plat.w; i += 32) {
+        for (let j = 0; j < plat.h; j += 16) {
+          ctx.fillRect(plat.x + i + 1, plat.y + j + 1, 30, 14);
+        }
+      }
+    }
+  }
+  
+  // 绘制隐藏方块
+  for (const block of hiddenBlocks) {
+    if (block.revealed) {
+      ctx.fillStyle = "#CD853F";
+      ctx.fillRect(block.x, block.y, block.w, block.h);
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "20px Arial";
+      ctx.fillText("?", block.x + 8, block.y + 24);
+    } else {
+      ctx.fillStyle = "#FFD700";
+      ctx.fillRect(block.x, block.y, block.w, block.h);
+      ctx.fillStyle = "#FFA500";
+      ctx.font = "bold 20px Arial";
+      ctx.fillText("?", block.x + 8, block.y + 24);
+    }
+  }
+  
+  // 绘制金币
+  for (const coin of coins) {
+    if (coin.collected) continue;
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(coin.x + 12, coin.y + 12, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#FFA500";
+    ctx.beginPath();
+    ctx.arc(coin.x + 10, coin.y + 10, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // 绘制管道
+  if (level.pipes) {
+    for (const pipe of level.pipes) {
+      // 管道顶部
+      ctx.fillStyle = "#228B22";
+      ctx.fillRect(pipe.x, pipe.y, 48, 16);
+      // 管道身
+      ctx.fillStyle = "#32CD32";
+      ctx.fillRect(pipe.x, pipe.y + 16, 48, pipe.h - 16);
+      // 管道高光
+      ctx.fillStyle = "#90EE90";
+      ctx.fillRect(pipe.x + 4, pipe.y + 20, 8, pipe.h - 24);
+    }
+  }
+  
+  // 绘制敌人
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+    if (enemy.type === "goomba") {
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(enemy.x + 4, enemy.y + 8, 6, 6);
+      ctx.fillRect(enemy.x + 18, enemy.y + 8, 6, 6);
+      // 脚
+      ctx.fillStyle = "#654321";
+      ctx.fillRect(enemy.x + 2, enemy.y + enemy.height - 6, 10, 6);
+      ctx.fillRect(enemy.x + 16, enemy.y + enemy.height - 6, 10, 6);
+    } else if (enemy.type === "koopa") {
+      ctx.fillStyle = "#228B22";
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      ctx.fillStyle = "#FFD700";
+      ctx.fillRect(enemy.x + 8, enemy.y + 8, 12, 8);
+    }
+  }
+  
+  // 绘制终点旗杆
+  if (level.goal) {
+    ctx.fillStyle = "#228B22";
+    ctx.fillRect(level.goal.x + 28, level.goal.y, 8, level.goal.h + 20);
+    ctx.fillStyle = "#FF4444";
+    ctx.fillRect(level.goal.x + 8, level.goal.y, 48, 32);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "20px Arial";
+    ctx.fillText("🏁", level.goal.x + 16, level.goal.y + 24);
+  }
+  
+  // 绘制粒子
+  for (const p of particles) {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life / 30;
+    ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    ctx.globalAlpha = 1;
+  }
+  
+  // 绘制玩家
+  if (!player.invincible || Math.floor(Date.now() / 100) % 2 === 0) {
+    // 身体
+    ctx.fillStyle = player.poweredUp ? "#FF4444" : "#FF9966";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    // 帽子
+    ctx.fillStyle = "#E94560";
+    ctx.fillRect(player.x, player.y, player.width, 8);
+    
+    // 眼睛
+    ctx.fillStyle = "#FFF";
+    const eyeOffset = player.facing > 0 ? 12 : 4;
+    ctx.fillRect(player.x + eyeOffset, player.y + 10, 6, 6);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(player.x + eyeOffset + 2, player.y + 12, 3, 3);
+    
+    // 衣服
+    if (player.poweredUp) {
+      ctx.fillStyle = "#FF0000";
+      ctx.fillRect(player.x, player.y + 20, player.width, 12);
+    }
+  }
+  
+  ctx.restore();
+}
+
+// ==================== UI ====================
+function updateUI() {
+  document.getElementById("scene-name").textContent = LEVELS[currentLevel]?.name || "游戏";
+  document.getElementById("coin-count").textContent = `金币: ${player.coins}`;
+}
+
+function showDialog(text) {
+  document.getElementById("dialog-text").innerHTML = text.replace(/\n/g, "<br>");
+  document.getElementById("dialog-overlay").classList.add("show");
+}
+
+function closeDialog() {
+  document.getElementById("dialog-overlay").classList.remove("show");
+}
+
+function showPause() {
+  document.getElementById("pause-overlay").classList.add("show");
+}
+
+function closePause() {
+  document.getElementById("pause-overlay").classList.remove("show");
+}
+
 function saveGame() {
   if (!currentUser) return;
   const saveData = {
-    player, scene: currentScene, inventory, flags,
+    player: { ...player },
+    level: currentLevel,
     savedAt: Date.now()
   };
   localStorage.setItem(`save_${currentUser.username}`, JSON.stringify(saveData));
@@ -933,197 +1166,6 @@ function quitGame() {
   showScreen("menu-screen");
 }
 
-function loadScene() {
-  const scene = SCENES[currentScene];
-  const gameArea = document.getElementById("game-area");
-  
-  // 清空动态元素（保留player和header）
-  gameArea.querySelectorAll(".exit-indicator, .item-obj").forEach(el => el.remove());
-  
-  // 更新场景信息
-  document.getElementById("scene-name").textContent = scene.name;
-  document.getElementById("inventory-count").textContent = `物品: ${inventory.length}`;
-  gameArea.style.backgroundColor = scene.background;
-  
-  // 添加出口
-  scene.exits.forEach(exit => {
-    const div = document.createElement("div");
-    div.className = `exit-indicator exit-${exit.dir}`;
-    div.textContent = exit.dir === "up" ? "↑" : exit.dir === "down" ? "↓" : exit.dir === "left" ? "←" : "→";
-    if (exit.locked && !isExitUnlocked(exit)) {
-      div.style.opacity = "0.3";
-      div.title = "锁住";
-    }
-    gameArea.appendChild(div);
-  });
-  
-  // 添加物品
-  scene.objects.forEach(obj => {
-    const div = document.createElement("div");
-    div.className = "item-obj";
-    div.id = `obj_${obj.id}`;
-    div.textContent = obj.sprite;
-    div.style.left = obj.x + "px";
-    div.style.top = obj.y + "px";
-    
-    if (obj.collected && inventory.includes(obj.collect)) {
-      div.classList.add("collected");
-    }
-    
-    div.onclick = () => interactWith(obj);
-    gameArea.appendChild(div);
-  });
-  
-  // 更新玩家位置
-  updatePlayerPos();
-}
-
-function updatePlayerPos() {
-  const playerEl = document.getElementById("player");
-  playerEl.style.left = player.x + "px";
-  playerEl.style.top = player.y + "px";
-}
-
-function move(dir) {
-  const step = 20;
-  let newX = player.x, newY = player.y;
-  
-  switch (dir) {
-    case "up": newY = Math.max(60, player.y - step); break;
-    case "down": newY = Math.min(400, player.y + step); break;
-    case "left": newX = Math.max(20, player.x - step); break;
-    case "right": newX = Math.min(350, player.x + step); break;
-  }
-  
-  player.x = newX;
-  player.y = newY;
-  updatePlayerPos();
-  checkNearbyObjects();
-  checkExits();
-}
-
-function checkNearbyObjects() {
-  const scene = SCENES[currentScene];
-  nearObject = null;
-  let minDist = 80;
-  
-  scene.objects.forEach(obj => {
-    if (obj.collected && inventory.includes(obj.collect)) return;
-    const dx = (player.x + 17) - (obj.x + obj.w / 2);
-    const dy = (player.y + 22) - (obj.y + obj.h / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < minDist) {
-      minDist = dist;
-      nearObject = obj;
-    }
-  });
-  
-  // 更新交互提示和按钮
-  const tipEl = document.getElementById("tip");
-  const interactBtn = document.getElementById("interact-btn");
-  const interactMobileBtn = document.getElementById("interact-mobile-btn");
-  
-  if (nearObject) {
-    tipEl.textContent = `靠近 ${nearObject.name}，按 E 交互`;
-    interactBtn.style.display = "block";
-    interactBtn.textContent = `🤚 交互 ${nearObject.name}`;
-    interactMobileBtn.style.display = "flex";
-  } else {
-    tipEl.textContent = "靠近物品后按 E 键交互";
-    interactBtn.style.display = "none";
-    interactMobileBtn.style.display = "none";
-  }
-}
-
-function interact() {
-  if (nearObject) {
-    interactWith(nearObject);
-  }
-}
-
-function interactWith(obj) {
-  if (obj.dialog) {
-    showDialog(obj.dialog.split("|"));
-  }
-  if (obj.collect && !inventory.includes(obj.collect)) {
-    setTimeout(() => {
-      inventory.push(obj.collect);
-      document.getElementById("inventory-count").textContent = `物品: ${inventory.length}`;
-      const el = document.getElementById(`obj_${obj.id}`);
-      if (el) el.classList.add("collected");
-    }, obj.dialog ? 500 : 0);
-  }
-  if (obj.puzzle) {
-    setTimeout(() => openPuzzle(obj.puzzle), obj.dialog ? 500 : 0);
-  }
-  if (obj.ending) {
-    setTimeout(() => {
-      alert("🎉 恭喜你逃出了谜境！\n\n感谢游玩！");
-    }, 300);
-  }
-}
-
-function checkExits() {
-  const scene = SCENES[currentScene];
-  const pw = 17, ph = 22; // player center offset
-  
-  scene.exits.forEach(exit => {
-    let canExit = false;
-    switch (exit.dir) {
-      case "up": canExit = player.y <= 100 && player.x >= 160 && player.x <= 220; break;
-      case "down": canExit = player.y >= 380 && player.x >= 160 && player.x <= 220; break;
-      case "left": canExit = player.x <= 30 && player.y >= 200 && player.y <= 280; break;
-      case "right": canExit = player.x >= 340 && player.y >= 200 && player.y <= 280; break;
-    }
-    
-    if (canExit) {
-      if (exit.locked && !isExitUnlocked(exit)) {
-        // 检查需要的物品
-        if (exit.requiresItem && !inventory.includes(exit.requiresItem)) {
-          // 显示提示
-        } else {
-          currentScene = exit.target;
-          loadScene();
-        }
-      } else {
-        currentScene = exit.target;
-        loadScene();
-      }
-    }
-  });
-}
-
-function isExitUnlocked(exit) {
-  if (currentScene === "ch1_door" && exit.dir === "down") return flags.lever_solved;
-  if (currentScene === "ch3_center" && exit.dir === "down") return flags.altar_solved;
-  return false;
-}
-
-// ==================== 对话框 ====================
-function showDialog(texts) {
-  dialogQueue = texts;
-  dialogIndex = 0;
-  showDialogFlag = true;
-  document.getElementById("dialog-text").textContent = dialogQueue[0];
-  document.getElementById("dialog-overlay").classList.add("show");
-}
-
-function nextDialog() {
-  dialogIndex++;
-  if (dialogIndex < dialogQueue.length) {
-    document.getElementById("dialog-text").textContent = dialogQueue[dialogIndex];
-  } else {
-    closeDialog();
-  }
-}
-
-function closeDialog() {
-  showDialogFlag = false;
-  dialogIndex = 0;
-  document.getElementById("dialog-overlay").classList.remove("show");
-}
-
-// ==================== 背包 ====================
 function toggleInventory() {
   const overlay = document.getElementById("inventory-overlay");
   if (overlay.classList.contains("show")) {
@@ -1138,122 +1180,18 @@ function renderInventory() {
   const grid = document.getElementById("inventory-grid");
   grid.innerHTML = "";
   
-  if (inventory.length === 0) {
-    grid.innerHTML = '<p style="color:#666;text-align:center;grid-column:1/-1;padding:40px;">背包是空的</p>';
-    return;
-  }
-  
-  inventory.forEach(itemId => {
-    const item = ITEMS[itemId];
-    if (item) {
-      const div = document.createElement("div");
-      div.className = "inv-item";
-      div.innerHTML = `<span class="inv-icon">${item.icon}</span><span class="inv-name">${item.name}</span>`;
-      div.onclick = () => alert(item.name + "\n" + item.desc);
-      grid.appendChild(div);
-    }
-  });
-}
-
-// ==================== 谜题 ====================
-function openPuzzle(puzzleId) {
-  currentPuzzle = puzzleId;
-  const puzzle = PUZZLES[puzzleId];
-  document.getElementById("puzzle-title").textContent = puzzle.title;
-  
-  const content = document.getElementById("puzzle-content");
-  
-  if (puzzle.type === "code") {
-    puzzleSequence = [];
-    content.innerHTML = `
-      <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
-      <input type="text" id="puzzle-input" maxlength="10" placeholder="输入密码...">
+  if (player.coins > 0) {
+    grid.innerHTML += `
+      <div class="inv-item">
+        <div class="inv-icon">🪙</div>
+        <div class="inv-name">金币 x${player.coins}</div>
+      </div>
     `;
-    document.getElementById("puzzle-input").focus();
-  } else if (puzzle.type === "sequence") {
-    puzzleSequence = [];
-    if (puzzleId === "lever") {
-      content.innerHTML = `
-        <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
-        <div id="puzzle-sequence">
-          <button class="seq-btn" onclick="seqPress('A')">A</button>
-          <button class="seq-btn" onclick="seqPress('B')">B</button>
-          <button class="seq-btn" onclick="seqPress('C')">C</button>
-        </div>
-        <p id="seq-display" style="margin-top:10px;font-size:16px;">已选: 无</p>
-      `;
-    } else if (puzzleId === "altar") {
-      content.innerHTML = `
-        <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
-        <div id="puzzle-sequence">
-          <button class="seq-btn" style="background:#8B0000;" onclick="seqPress('red')">🔴</button>
-          <button class="seq-btn" style="background:#00008B;" onclick="seqPress('blue')">🔵</button>
-          <button class="seq-btn" style="background:#006400;" onclick="seqPress('green')">🟢</button>
-        </div>
-        <p id="seq-display" style="margin-top:10px;font-size:16px;">已选: 无</p>
-      `;
-    }
   }
   
-  document.getElementById("puzzle-overlay").classList.add("show");
-}
-
-function seqPress(val) {
-  if (puzzleSequence.length < 4) {
-    puzzleSequence.push(val);
-    document.getElementById("seq-display").textContent = `已选: ${puzzleSequence.join(" → ")}`;
-    
-    // 高亮显示
-    document.querySelectorAll(".seq-btn").forEach(btn => {
-      if (btn.textContent === val || btn.textContent.includes(val)) {
-        btn.classList.add("active");
-      }
-    });
+  if (player.inventory.length === 0 && player.coins === 0) {
+    grid.innerHTML = '<p style="color:#666;text-align:center;grid-column:1/-1;padding:40px;">背包是空的</p>';
   }
-}
-
-function submitPuzzle() {
-  const puzzle = PUZZLES[currentPuzzle];
-  let correct = false;
-  
-  if (puzzle.type === "code") {
-    const input = document.getElementById("puzzle-input").value.trim();
-    correct = input === puzzle.answer;
-  } else if (puzzle.type === "sequence") {
-    correct = puzzleSequence.join(",") === puzzle.correct.join(",");
-  }
-  
-  if (correct) {
-    // 标记完成
-    if (currentPuzzle === "lever") flags.lever_solved = true;
-    if (currentPuzzle === "altar") flags.altar_solved = true;
-    
-    closePuzzle();
-    alert("🎉 解谜成功！");
-    loadScene(); // 刷新场景
-  } else {
-    alert("❌ 答案错误，再试试！");
-    puzzleSequence = [];
-    if (document.getElementById("seq-display")) {
-      document.getElementById("seq-display").textContent = "已选: 无";
-    }
-    document.querySelectorAll(".seq-btn").forEach(btn => btn.classList.remove("active"));
-  }
-}
-
-function closePuzzle() {
-  puzzleSequence = [];
-  currentPuzzle = null;
-  document.getElementById("puzzle-overlay").classList.remove("show");
-}
-
-// ==================== 暂停 ====================
-function showPause() {
-  document.getElementById("pause-overlay").style.display = "flex";
-}
-
-function closePause() {
-  document.getElementById("pause-overlay").style.display = "none";
 }
 
 // ==================== 启动 ====================

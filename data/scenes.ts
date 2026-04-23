@@ -1,0 +1,600 @@
+import { Scene } from '../types';
+
+export const scenes: Scene[] = [
+  // ═══════════════════════════════════════════
+  // 第一关：苏醒
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch1_start',
+    name: '第一关：苏醒',
+    background: '#1a1a2e',
+    exits: [
+      { direction: 'right', targetSceneId: 'scene_ch1_door', locked: true },
+    ],
+    objects: [
+      {
+        id: 'bed',
+        name: '破旧的床',
+        position: { x: 50, y: 350 },
+        size: { width: 100, height: 80 },
+        sprite: '🛏️',
+        action: 'examine',
+        dialog: ['一张积满灰尘的床，床单已经发黄。', '你在这里躺了多久？'],
+      },
+      {
+        id: 'painting_1',
+        name: '挂画',
+        position: { x: 160, y: 100 },
+        size: { width: 80, height: 60 },
+        sprite: '🖼️',
+        action: 'examine',
+        dialog: ['一幅模糊的风景画，画中的太阳是红色的。'],
+      },
+      {
+        id: 'cabinet',
+        name: '木柜',
+        position: { x: 270, y: 200 },
+        size: { width: 60, height: 100 },
+        sprite: '🗄️',
+        action: 'examine',
+        dialog: ['一个老旧的木柜，柜门半开着。'],
+      },
+      {
+        id: 'drawer',
+        name: '抽屉',
+        position: { x: 280, y: 250 },
+        size: { width: 40, height: 30 },
+        sprite: '📦',
+        action: 'open',
+        givesItem: 'flashlight',
+        dialog: ['你拉开抽屉，发现了一个手电筒！', '获得：手电筒'],
+      },
+      {
+        id: 'poster',
+        name: '墙上的便签',
+        position: { x: 100, y: 180 },
+        size: { width: 50, height: 40 },
+        sprite: '📝',
+        action: 'examine',
+        dialog: ['便签上写着："门的密码藏在画里"', '红色的太阳...是几点了？'],
+      },
+      {
+        id: 'ch1_door',
+        name: '铁门',
+        position: { x: 280, y: 100 },
+        size: { width: 60, height: 120 },
+        sprite: '🚪',
+        action: 'use',
+        requiresItem: 'key_bronze',
+        dialog: ['你用钥匙打开了门！', '第一关通过！'],
+      },
+      {
+        id: 'key_hidden',
+        name: '床底的钥匙',
+        position: { x: 80, y: 420 },
+        size: { width: 40, height: 30 },
+        sprite: '🗝️',
+        action: 'pickup',
+        givesItem: 'key_bronze',
+        dialog: ['你在床底发现了一把铜钥匙！', '获得：铜钥匙'],
+      },
+      {
+        id: 'hole',
+        name: '墙上的洞',
+        position: { x: 20, y: 250 },
+        size: { width: 40, height: 50 },
+        sprite: '🕳️',
+        action: 'examine',
+        dialog: ['墙上有一个小洞，伸手进去摸了摸...', '什么都没有。'],
+      },
+    ],
+    puzzles: [],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第二关：抉择
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch1_door',
+    name: '第二关：抉择',
+    background: '#2d3a4a',
+    exits: [
+      { direction: 'left', targetSceneId: 'scene_ch1_start' },
+      { direction: 'right', targetSceneId: 'scene_ch2_left' },
+      { direction: 'up', targetSceneId: 'scene_ch2_right', locked: true },
+      { direction: 'down', targetSceneId: 'scene_ch2_down', locked: true },
+    ],
+    objects: [
+      {
+        id: 'lever_box',
+        name: '控制台',
+        position: { x: 150, y: 350 },
+        size: { width: 80, height: 100 },
+        sprite: '🎛️',
+        action: 'examine',
+        dialog: ['一个复杂的控制台，上面有多个拉杆和开关。'],
+      },
+      {
+        id: 'lever_1',
+        name: '拉杆 A',
+        position: { x: 160, y: 380 },
+        size: { width: 30, height: 50 },
+        sprite: '🔧',
+        action: 'pull',
+        triggersPuzzle: 'lever_puzzle',
+        dialog: ['拉下拉杆 A...'],
+      },
+      {
+        id: 'lever_2',
+        name: '拉杆 B',
+        position: { x: 190, y: 380 },
+        size: { width: 30, height: 50 },
+        sprite: '🔧',
+        action: 'pull',
+        triggersPuzzle: 'lever_puzzle',
+        dialog: ['拉下拉杆 B...'],
+      },
+      {
+        id: 'torn_note',
+        name: '破碎的纸条',
+        position: { x: 50, y: 150 },
+        size: { width: 50, height: 40 },
+        sprite: '📜',
+        action: 'pickup',
+        givesItem: 'torn_note',
+        dialog: ['你捡起破碎的纸条，上面有数字："2_1_"'],
+      },
+      {
+        id: 'statue',
+        name: '石像',
+        position: { x: 280, y: 180 },
+        size: { width: 50, height: 80 },
+        sprite: '🗿',
+        action: 'examine',
+        dialog: ['一座神秘的石像，它的眼睛似乎在注视着你。'],
+      },
+      {
+        id: 'note_hint_ch2',
+        name: '墙上的提示',
+        position: { x: 100, y: 100 },
+        size: { width: 60, height: 40 },
+        sprite: '📋',
+        action: 'examine',
+        dialog: ['提示：请按照正确顺序拉下拉杆', 'A...B...A...B...？'],
+      },
+      {
+        id: 'up_door',
+        name: '上方的门',
+        position: { x: 160, y: 80 },
+        size: { width: 60, height: 80 },
+        sprite: '🚪',
+        action: 'open',
+        locked: true,
+        dialog: ['这扇门被锁住了。'],
+      },
+      {
+        id: 'down_door',
+        name: '下方的门',
+        position: { x: 160, y: 480 },
+        size: { width: 60, height: 80 },
+        sprite: '🚪',
+        action: 'open',
+        locked: true,
+        dialog: ['这扇门被锁住了。'],
+      },
+    ],
+    puzzles: [
+      {
+        id: 'lever_puzzle',
+        type: 'sequence',
+        solved: false,
+        data: { 
+          answer: ['lever_1', 'lever_2', 'lever_1', 'lever_2'],
+          currentSequence: [],
+          hint: 'A - B - A - B',
+        },
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第二关左侧：图书馆
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch2_left',
+    name: '图书馆',
+    background: '#3d2d4a',
+    exits: [
+      { direction: 'left', targetSceneId: 'scene_ch1_door' },
+    ],
+    objects: [
+      {
+        id: 'bookshelf_large',
+        name: '大书架',
+        position: { x: 30, y: 150 },
+        size: { width: 150, height: 250 },
+        sprite: '📚',
+        action: 'examine',
+        dialog: ['一排排古老的书籍，书脊上的文字已经模糊。', '其中一本书格外显眼...'],
+      },
+      {
+        id: 'magic_book',
+        name: '魔法书',
+        position: { x: 80, y: 200 },
+        size: { width: 40, height: 50 },
+        sprite: '📖',
+        action: 'pickup',
+        givesItem: 'magic_book',
+        dialog: ['获得：魔法书', '书上写着："数字的密码，用光芒照亮答案"'],
+      },
+      {
+        id: 'desk',
+        name: '书桌',
+        position: { x: 220, y: 300 },
+        size: { width: 100, height: 60 },
+        sprite: '📝',
+        action: 'examine',
+        dialog: ['一张堆满纸张的书桌，笔筒里有支蜡烛。'],
+      },
+      {
+        id: 'candle',
+        name: '蜡烛',
+        position: { x: 250, y: 280 },
+        size: { width: 30, height: 40 },
+        sprite: '🕯️',
+        action: 'pickup',
+        givesItem: 'candle',
+        dialog: ['获得：蜡烛'],
+      },
+      {
+        id: 'riddle',
+        name: '墙上的谜语',
+        position: { x: 200, y: 100 },
+        size: { width: 100, height: 60 },
+        sprite: '❓',
+        action: 'examine',
+        dialog: ['谜语：', '"我从不说话，却能回答所有问题"', '"我是数字，却需要被点燃"', '猜一猜，我是什么？'],
+      },
+      {
+        id: 'window_dark',
+        name: '黑暗的窗户',
+        position: { x: 280, y: 150 },
+        size: { width: 50, height: 80 },
+        sprite: '🪟',
+        action: 'examine',
+        dialog: ['窗户被木板封住了，外面一片漆黑。'],
+      },
+    ],
+    puzzles: [],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第二关右侧：储藏室
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch2_right',
+    name: '储藏室',
+    background: '#2d2d1a',
+    exits: [
+      { direction: 'down', targetSceneId: 'scene_ch1_door' },
+    ],
+    objects: [
+      {
+        id: 'crates',
+        name: '木箱堆',
+        position: { x: 50, y: 350 },
+        size: { width: 120, height: 100 },
+        sprite: '📦',
+        action: 'examine',
+        dialog: ['一堆落满灰尘的木箱，似乎很久没人动过了。'],
+      },
+      {
+        id: 'hidden_key',
+        name: '暗格',
+        position: { x: 80, y: 380 },
+        size: { width: 40, height: 40 },
+        sprite: '🔲',
+        action: 'examine',
+        givesItem: 'key_silver',
+        dialog: ['你发现了一个暗格，里面有把银钥匙！', '获得：银钥匙'],
+      },
+      {
+        id: 'old_photo',
+        name: '旧照片',
+        position: { x: 200, y: 150 },
+        size: { width: 60, height: 50 },
+        sprite: '🖼️',
+        action: 'examine',
+        dialog: ['一张泛黄的照片，照片上有4个人影。', '每个人影下方似乎有数字标记...'],
+      },
+      {
+        id: 'mirror',
+        name: '镜子',
+        position: { x: 280, y: 200 },
+        size: { width: 50, height: 80 },
+        sprite: '🪞',
+        action: 'examine',
+        dialog: ['镜子里映出你的身影...等等，后面是什么？'],
+      },
+      {
+        id: 'clock',
+        name: '停止的钟',
+        position: { x: 150, y: 100 },
+        size: { width: 60, height: 60 },
+        sprite: '🕐',
+        action: 'examine',
+        dialog: ['一个停止的时钟，指针卡在了 2:10 的位置。'],
+      },
+    ],
+    puzzles: [],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第二关下方：地下室入口
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch2_down',
+    name: '地下室',
+    background: '#1a1a1a',
+    exits: [
+      { direction: 'up', targetSceneId: 'scene_ch1_door' },
+      { direction: 'down', targetSceneId: 'scene_ch3_start', locked: true },
+    ],
+    objects: [
+      {
+        id: 'runes_wall',
+        name: '符文墙壁',
+        position: { x: 100, y: 200 },
+        size: { width: 200, height: 150 },
+        sprite: '🔮',
+        action: 'examine',
+        dialog: ['墙壁上刻满了发光的符文...', '等等，似乎缺了一部分？'],
+      },
+      {
+        id: 'rune_puzzle',
+        name: '符文谜题',
+        position: { x: 150, y: 250 },
+        size: { width: 100, height: 80 },
+        sprite: '💠',
+        action: 'examine',
+        triggersPuzzle: 'rune_code',
+        dialog: ['这是一个数字密码谜题，需要输入正确的密码。'],
+      },
+      {
+        id: 'torch_holder',
+        name: '火把架',
+        position: { x: 30, y: 180 },
+        size: { width: 40, height: 60 },
+        sprite: '🔥',
+        action: 'examine',
+        dialog: ['墙上的火把架，但火把不见了。'],
+      },
+      {
+        id: 'final_door',
+        name: '通往深处',
+        position: { x: 150, y: 450 },
+        size: { width: 80, height: 100 },
+        sprite: '🚪',
+        action: 'open',
+        locked: true,
+        dialog: ['一扇厚重的铁门，似乎需要解开谜题才能打开。'],
+      },
+      {
+        id: 'hint_plate',
+        name: '石板提示',
+        position: { x: 220, y: 350 },
+        size: { width: 80, height: 60 },
+        sprite: '🪦',
+        action: 'examine',
+        dialog: ['石板上刻着：', '"当蜡烛点燃光明，数字将显现真容"', '"答案是：小时_分钟"'],
+      },
+    ],
+    puzzles: [
+      {
+        id: 'rune_code',
+        type: 'code',
+        solved: false,
+        data: { 
+          answer: '210',
+          hint: '时钟的示数（2:10 → 210）',
+        },
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第三关：深渊
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch3_start',
+    name: '第三关：深渊',
+    background: '#0a0a15',
+    exits: [
+      { direction: 'up', targetSceneId: 'scene_ch2_down' },
+      { direction: 'left', targetSceneId: 'scene_ch3_left' },
+      { direction: 'right', targetSceneId: 'scene_ch3_right' },
+    ],
+    objects: [
+      {
+        id: 'crystal_1',
+        name: '蓝色水晶',
+        position: { x: 100, y: 300 },
+        size: { width: 40, height: 50 },
+        sprite: '💎',
+        action: 'pickup',
+        givesItem: 'crystal_blue',
+        dialog: ['获得：蓝色水晶', '它散发着寒冷的光芒...'],
+      },
+      {
+        id: 'altar',
+        name: '祭坛',
+        position: { x: 160, y: 400 },
+        size: { width: 80, height: 60 },
+        sprite: '⛩️',
+        action: 'examine',
+        dialog: ['一座古老的祭坛，上面有3个凹槽。'],
+      },
+      {
+        id: 'ancient_door',
+        name: '石门',
+        position: { x: 280, y: 200 },
+        size: { width: 60, height: 120 },
+        sprite: '🗿',
+        action: 'use',
+        requiresItem: 'crystal_blue',
+        dialog: ['你需要某种水晶才能打开这扇门...'],
+      },
+      {
+        id: 'water_pool',
+        name: '水池',
+        position: { x: 50, y: 450 },
+        size: { width: 80, height: 50 },
+        sprite: '💧',
+        action: 'examine',
+        dialog: ['一池漆黑的水，映出模糊的倒影...'],
+      },
+      {
+        id: 'bone',
+        name: '骨头',
+        position: { x: 250, y: 420 },
+        size: { width: 40, height: 30 },
+        sprite: '🦴',
+        action: 'examine',
+        dialog: ['一根不知名的骨头...这里发生过什么？'],
+      },
+    ],
+    puzzles: [],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第三关左侧：密室
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch3_left',
+    name: '密室',
+    background: '#1a1520',
+    exits: [
+      { direction: 'right', targetSceneId: 'scene_ch3_start' },
+    ],
+    objects: [
+      {
+        id: 'safe',
+        name: '保险箱',
+        position: { x: 120, y: 250 },
+        size: { width: 80, height: 80 },
+        sprite: '🔐',
+        action: 'open',
+        triggersPuzzle: 'safe_puzzle',
+        dialog: ['一个带密码锁的保险箱。'],
+      },
+      {
+        id: 'painting_hint',
+        name: '画像',
+        position: { x: 80, y: 120 },
+        size: { width: 60, height: 80 },
+        sprite: '👤',
+        action: 'examine',
+        dialog: ['画中人物的手指向左边。', '左边...是北？'],
+      },
+      {
+        id: 'compass',
+        name: '罗盘',
+        position: { x: 220, y: 350 },
+        size: { width: 50, height: 50 },
+        sprite: '🧭',
+        action: 'pickup',
+        givesItem: 'compass',
+        dialog: ['获得：罗盘', '指针指向北方。'],
+      },
+      {
+        id: 'clue_1',
+        name: '地上的数字',
+        position: { x: 50, y: 450 },
+        size: { width: 50, height: 30 },
+        sprite: '🔢',
+        action: 'examine',
+        dialog: ['地上刻着一个数字：2'],
+      },
+    ],
+    puzzles: [
+      {
+        id: 'safe_puzzle',
+        type: 'code',
+        solved: false,
+        data: { answer: '218', hint: '画像指向北...时钟是2:18' },
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // 第三关右侧：宝藏室
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ch3_right',
+    name: '宝藏室',
+    background: '#2a2a1a',
+    exits: [
+      { direction: 'left', targetSceneId: 'scene_ch3_start' },
+    ],
+    objects: [
+      {
+        id: 'treasure_chest',
+        name: '宝藏箱',
+        position: { x: 150, y: 300 },
+        size: { width: 80, height: 60 },
+        sprite: '💰',
+        action: 'open',
+        triggersPuzzle: 'treasure_puzzle',
+        dialog: ['一个华丽的宝箱，似乎有机关锁着。'],
+      },
+      {
+        id: 'gem_holder',
+        name: '宝石座',
+        position: { x: 280, y: 200 },
+        size: { width: 50, height: 60 },
+        sprite: '💠',
+        action: 'examine',
+        dialog: ['一个空的宝石座，似乎少了什么东西。'],
+      },
+      {
+        id: 'legend',
+        name: '石碑铭文',
+        position: { x: 50, y: 150 },
+        size: { width: 100, height: 80 },
+        sprite: '📜',
+        action: 'examine',
+        dialog: ['铭文：', '"将三颗宝石放入祭坛，道路将为你敞开"', '"蓝色在北，红色在东，绿色在西"'],
+      },
+      {
+        id: 'red_crystal',
+        name: '红色宝石',
+        position: { x: 200, y: 420 },
+        size: { width: 35, height: 40 },
+        sprite: '🔴',
+        action: 'pickup',
+        givesItem: 'crystal_red',
+        dialog: ['获得：红色宝石'],
+      },
+    ],
+    puzzles: [
+      {
+        id: 'treasure_puzzle',
+        type: 'sequence',
+        solved: false,
+        data: { answer: ['red', 'blue', 'green'], hint: '按正确顺序点击宝石' },
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // 结局场景
+  // ═══════════════════════════════════════════
+  {
+    id: 'scene_ending',
+    name: '尾声',
+    background: '#ffffff',
+    exits: [],
+    objects: [],
+    puzzles: [],
+  },
+];

@@ -1,12 +1,7 @@
 {
-  "buildCommand": "npx expo export:embed",
+  "buildCommand": "npx expo export:embed --platform web",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "framework": null,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ]
+  "devCommand": "npx expo start",
+  "framework": null
 }

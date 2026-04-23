@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>谜境逃脱</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .screen { display: none; min-height: 100vh; padding: 20px; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    /* 通用按钮 */
+    .btn {
+      padding: 15px 40px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary { background: #e94560; color: #fff; }
+    .btn-secondary { background: #16213e; color: #fff; border: 2px solid #4a9eff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* 输入框 */
+    .input {
+      width: 280px;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: #16213e;
+      color: #fff;
+      outline: none;
+    }
+    .input:focus { border-color: #4a9eff; }
+    
+    /* 标题 */
+    .title { font-size: 36px; font-weight: bold; margin-bottom: 30px; color: #e94560; text-shadow: 0 0 20px rgba(233,69,96,0.5); }
+    .subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
+    
+    /* 游戏容器 */
+    #game-container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    /* 游戏场景 */
+    #game-area {
+      width: 100%;
+      height: 450px;
+      background: #2a2a4e;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid #333;
+      touch-action: none;
+    }
+    
+    /* 场景顶部信息 */
+    #scene-header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      z-index: 10;
+    }
+    #scene-name { font-weight: bold; color: #4a9eff; }
+    #inventory-count { color: #666; }
+    
+    /* 玩家 */
+    #player {
+      position: absolute;
+      width: 35px;
+      height: 45px;
+      font-size: 32px;
+      text-align: center;
+      transition: left 0.1s, top 0.1s;
+      z-index: 5;
+    }
+    
+    /* 物品 */
+    .item-obj {
+      position: absolute;
+      font-size: 28px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 3;
+    }
+    .item-obj:hover { transform: scale(1.2); }
+    .item-obj.collected { display: none; }
+    
+    /* 出口指示 */
+    .exit-indicator {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: rgba(74,158,255,0.3);
+      border: 2px solid #4a9eff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      z-index: 2;
+    }
+    .exit-up { top: 55px; left: 50%; transform: translateX(-50%); }
+    .exit-down { bottom: 5px; left: 50%; transform: translateX(-50%); }
+    .exit-left { left: 5px; top: 50%; transform: translateY(-50%); }
+    .exit-right { right: 5px; top: 50%; transform: translateY(-50%); }
+    
+    /* 控制区 */
+    #controls {
+      width: 100%;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* 虚拟摇杆 */
+    #joystick {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+      gap: 5px;
+    }
+    .dir-btn {
+      width: 50px;
+      height: 50px;
+      background: #16213e;
+      border: 2px solid #333;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .dir-btn:active { background: #1a3a6e; }
+    .dir-empty { background: transparent; border: none; }
+    
+    /* 动作按钮 */
+    #action-btns { display: flex; flex-direction: column; gap: 10px; }
+    .action-btn {
+      width: 50px;
+      height: 50px;
+      background: #16213e;
+      border: 2px solid #e94560;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    /* 提示 */
+    #tip {
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+      padding: 10px;
+    }
+    
+    /* 对话框 */
+    #dialog-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: flex-end;
+      padding: 20px;
+      z-index: 100;
+    }
+    #dialog-overlay.show { display: flex; }
+    #dialog-box {
+      background: #16213e;
+      border: 2px solid #e94560;
+      border-radius: 15px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+    #dialog-text { font-size: 16px; line-height: 1.6; margin-bottom: 10px; }
+    #dialog-hint { color: #666; font-size: 12px; text-align: right; }
+    
+    /* 背包 */
+    #inventory-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #inventory-overlay.show { display: flex; }
+    #inventory-box {
+      background: #16213e;
+      border: 2px solid #e94560;
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 350px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    #inventory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    #inventory-title { font-size: 20px; font-weight: bold; }
+    #inventory-close { font-size: 24px; cursor: pointer; color: #e94560; }
+    #inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .inv-item {
+      background: #0f0f23;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .inv-item:active { background: #1a2a4e; }
+    .inv-icon { font-size: 32px; }
+    .inv-name { font-size: 11px; margin-top: 5px; color: #fff; }
+    
+    /* 谜题弹窗 */
+    #puzzle-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    #puzzle-overlay.show { display: flex; }
+    #puzzle-box {
+      background: #16213e;
+      border: 3px solid #e94560;
+      border-radius: 20px;
+      padding: 25px;
+      width: 90%;
+      max-width: 350px;
+      text-align: center;
+    }
+    #puzzle-title { font-size: 18px; margin-bottom: 15px; color: #e94560; }
+    #puzzle-content { margin: 20px 0; }
+    #puzzle-input {
+      width: 100%;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+      background: #0f0f23;
+      border: 2px solid #333;
+      border-radius: 10px;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+    #puzzle-sequence { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .seq-btn {
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      background: #0f0f23;
+      border: 2px solid #333;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .seq-btn:active, .seq-btn.active { background: #4a9eff; border-color: #4a9eff; }
+    #puzzle-btns { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+    
+    /* Web端键盘提示 */
+    #web-hint {
+      display: none;
+      background: #0f0f23;
+      padding: 8px 15px;
+      font-size: 12px;
+      color: #4a9eff;
+      text-align: center;
+      width: 100%;
+      border-bottom: 1px solid #333;
+    }
+    @media (min-width: 768px) { #web-hint { display: block; } }
+    @media (max-width: 767px) { #web-hint { display: none; } }
+    
+    /* Web端按钮 */
+    #web-btns {
+      display: none;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (min-width: 768px) { #web-btns { display: flex; } }
+    .web-btn {
+      padding: 10px 20px;
+      background: #16213e;
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    /* 错误提示 */
+    .error { color: #e94560; font-size: 14px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- 登录界面 -->
+<div id="login-screen" class="screen active">
+  <h1 class="title">谜境逃脱</h1>
+  <p class="subtitle">探索未知的谜境世界</p>
+  <input type="text" id="login-username" class="input" placeholder="用户名">
+  <input type="password" id="login-password" class="input" placeholder="密码">
+  <button class="btn btn-primary" onclick="login()">登录</button>
+  <button class="btn btn-secondary" onclick="showScreen('register-screen')">注册账号</button>
+  <p class="error" id="login-error"></p>
+</div>
+
+<!-- 注册界面 -->
+<div id="register-screen" class="screen">
+  <h1 class="title">注册</h1>
+  <input type="text" id="reg-username" class="input" placeholder="用户名">
+  <input type="password" id="reg-password" class="input" placeholder="密码">
+  <input type="password" id="reg-password2" class="input" placeholder="确认密码">
+  <button class="btn btn-primary" onclick="register()">注册</button>
+  <button class="btn btn-secondary" onclick="showScreen('login-screen')">返回登录</button>
+  <p class="error" id="reg-error"></p>
+</div>
+
+<!-- 主菜单 -->
+<div id="menu-screen" class="screen">
+  <h1 class="title">谜境逃脱</h1>
+  <p id="welcome-text">欢迎回来</p>
+  <button class="btn btn-primary" onclick="startGame()">开始游戏</button>
+  <button class="btn btn-secondary" onclick="loadGame()">继续游戏</button>
+  <button class="btn btn-secondary" onclick="logout()">退出登录</button>
+</div>
+
+<!-- 游戏界面 -->
+<div id="game-screen" class="screen">
+  <div id="web-hint">WASD/方向键移动 | E/空格 交互 | I 背包 | ESC 暂停</div>
+  <div id="game-container">
+    <div id="game-area">
+      <div id="scene-header">
+        <span id="scene-name">起始房间</span>
+        <span id="inventory-count">物品: 0</span>
+      </div>
+      <div id="player">🧑</div>
+      <!-- 动态生成出口和物品 -->
+    </div>
+    <div id="controls">
+      <div id="joystick">
+        <div class="dir-empty"></div>
+        <div class="dir-btn" ontouchstart="move('up')">▲</div>
+        <div class="dir-empty"></div>
+        <div class="dir-btn" ontouchstart="move('left')">◀</div>
+        <div class="dir-empty"></div>
+        <div class="dir-btn" ontouchstart="move('right')">▶</div>
+        <div class="dir-empty"></div>
+        <div class="dir-btn" ontouchstart="move('down')">▼</div>
+        <div class="dir-empty"></div>
+      </div>
+      <div id="action-btns">
+        <div class="action-btn" onclick="toggleInventory()">📦</div>
+        <div class="action-btn" onclick="showPause()">⏸</div>
+      </div>
+    </div>
+    <div id="web-btns">
+      <div class="web-btn" onclick="interact()">🤚 交互 (E)</div>
+      <div class="web-btn" onclick="toggleInventory()">📦 背包 (I)</div>
+      <div class="web-btn" onclick="showPause()">⏸ 暂停</div>
+    </div>
+    <p id="tip">靠近物品后按 E 键交互</p>
+  </div>
+</div>
+
+<!-- 对话框 -->
+<div id="dialog-overlay" onclick="nextDialog()">
+  <div id="dialog-box">
+    <p id="dialog-text"></p>
+    <p id="dialog-hint">点击继续...</p>
+  </div>
+</div>
+
+<!-- 背包 -->
+<div id="inventory-overlay" onclick="event.stopPropagation()">
+  <div id="inventory-box">
+    <div id="inventory-header">
+      <span id="inventory-title">背包</span>
+      <span id="inventory-close" onclick="toggleInventory()">✕</span>
+    </div>
+    <div id="inventory-grid"></div>
+  </div>
+</div>
+
+<!-- 谜题弹窗 -->
+<div id="puzzle-overlay">
+  <div id="puzzle-box">
+    <h3 id="puzzle-title">谜题</h3>
+    <div id="puzzle-content"></div>
+    <div id="puzzle-btns">
+      <button class="btn btn-secondary" onclick="closePuzzle()">取消</button>
+      <button class="btn btn-primary" onclick="submitPuzzle()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 暂停菜单 -->
+<div id="pause-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:150; justify-content:center; align-items:center; flex-direction:column;">
+  <h2 style="margin-bottom:20px;">游戏暂停</h2>
+  <button class="btn btn-primary" onclick="closePause()">继续</button>
+  <button class="btn btn-secondary" onclick="saveGame()">保存</button>
+  <button class="btn btn-secondary" onclick="quitGame()">退出</button>
+</div>
+
+<script>
+// ==================== 数据定义 ====================
+const SCENES = {
+  // 第一关：起始房间
+  ch1_start: {
+    name: "封闭房间",
+    background: "#3a3a5e",
+    exits: [
+      { dir: "down", target: "ch1_door", x: 180, y: 400, locked: false }
+    ],
+    objects: [
+      { id: "bed", name: "床", sprite: "🛏️", x: 50, y: 200, w: 80, h: 60, dialog: "一张简陋的床，床上有便签..." },
+      { id: "note", name: "便签", sprite: "📝", x: 150, y: 150, w: 40, h: 40, collect: "note", dialog: "便签上写着：'密码藏在画里'" },
+      { id: "painting", name: "挂画", sprite: "🖼️", x: 280, y: 180, w: 60, h: 50, dialog: "一幅风景画，太阳是红色的..." },
+      { id: "drawer", name: "抽屉", sprite: "🗄️", x: 50, y: 320, w: 50, h: 50, collect: "flashlight", dialog: "打开抽屉，找到手电筒！" },
+      { id: "underbed", name: "床底", sprite: "🔑", x: 80, y: 350, w: 40, h: 30, collect: "key", dialog: "在黑暗中摸索...找到了一把钥匙！" }
+    ]
+  },
+  // 走廊
+  ch1_door: {
+    name: "中央走廊",
+    background: "#2a2a4e",
+    exits: [
+      { dir: "up", target: "ch1_start", x: 180, y: 60, locked: false },
+      { dir: "left", target: "ch2_library", x: 20, y: 220, locked: false },
+      { dir: "right", target: "ch2_storage", x: 340, y: 220, locked: false },
+      { dir: "down", target: "ch2_basement", x: 180, y: 400, locked: true }
+    ],
+    objects: [
+      { id: "lever", name: "拉杆", sprite: "🎛️", x: 180, y: 220, w: 50, h: 50, puzzle: "lever", dialog: "三个拉杆，需要按正确顺序拉动！" },
+      { id: "statue", name: "雕像", sprite: "🗿", x: 300, y: 320, w: 50, h: 60, dialog: "奇怪的雕像，眼睛似乎在注视着你..." }
+    ]
+  },
+  // 第二关：图书馆
+  ch2_library: {
+    name: "图书馆",
+    background: "#4a3a2e",
+    exits: [
+      { dir: "right", target: "ch1_door", x: 350, y: 220, locked: false }
+    ],
+    objects: [
+      { id: "bookshelf", name: "书架", sprite: "📚", x: 100, y: 150, w: 80, h: 60, collect: "book", dialog: "找到一本魔法书，上面写着：'用光芒照亮答案'" },
+      { id: "candle", name: "蜡烛", sprite: "🕯️", x: 250, y: 280, w: 40, h: 40, collect: "candle", dialog: "一根精美的蜡烛" }
+    ]
+  },
+  // 储藏室
+  ch2_storage: {
+    name: "储藏室",
+    background: "#3a4a3a",
+    exits: [
+      { dir: "left", target: "ch1_door", x: 20, y: 220, locked: false }
+    ],
+    objects: [
+      { id: "photo", name: "旧照片", sprite: "🖼️", x: 120, y: 180, w: 60, h: 50, dialog: "照片里有一座时钟，指针指向 2:10" },
+      { id: "hidden", name: "暗格", sprite: "📦", x: 250, y: 300, w: 50, h: 50, collect: "silver_key", dialog: "发现暗格，获得银钥匙！" }
+    ]
+  },
+  // 地下室
+  ch2_basement: {
+    name: "地下室",
+    background: "#1a1a2e",
+    exits: [
+      { dir: "up", target: "ch1_door", x: 180, y: 60, locked: false }
+    ],
+    objects: [
+      { id: "rune", name: "符文墙壁", sprite: "🔮", x: 150, y: 200, w: 80, h: 60, puzzle: "rune", dialog: "墙上刻着符文，输入密码：小时_分钟" },
+      { id: "pedestal", name: "基座", sprite: "🏛️", x: 180, y: 320, w: 60, h: 50, dialog: "一个古老的石制基座" }
+    ]
+  },
+  // 第三关：中央区域
+  ch3_center: {
+    name: "深渊中央",
+    background: "#2a1a2e",
+    exits: [
+      { dir: "left", target: "ch3_secret", x: 20, y: 220, locked: false },
+      { dir: "right", target: "ch3_treasure", x: 350, y: 220, locked: false },
+      { dir: "down", target: "ch3_end", x: 180, y: 400, locked: true }
+    ],
+    objects: [
+      { id: "crystal", name: "蓝色水晶", sprite: "💎", x: 200, y: 280, w: 40, h: 40, collect: "blue_gem", dialog: "闪烁着蓝光的水晶" },
+      { id: "altar", name: "祭坛", sprite: "⛩️", x: 150, y: 150, w: 80, h: 60, puzzle: "altar", dialog: "需要放入三颗宝石才能打开通道" }
+    ]
+  },
+  // 密室
+  ch3_secret: {
+    name: "密室",
+    background: "#1a2a2a",
+    exits: [
+      { dir: "right", target: "ch3_center", x: 350, y: 220, locked: false }
+    ],
+    objects: [
+      { id: "compass", name: "罗盘", sprite: "🧭", x: 150, y: 250, w: 40, h: 40, collect: "compass", dialog: "精致的罗盘，指针指向北方" },
+      { id: "safe", name: "保险箱", sprite: "🔐", x: 250, y: 200, w: 60, h: 60, puzzle: "safe", dialog: "输入密码打开保险箱" }
+    ]
+  },
+  // 宝藏室
+  ch3_treasure: {
+    name: "宝藏室",
+    background: "#4a3a1a",
+    exits: [
+      { dir: "left", target: "ch3_center", x: 20, y: 220, locked: false }
+    ],
+    objects: [
+      { id: "red_gem", name: "红色宝石", sprite: "🔴", x: 100, y: 280, w: 40, h: 40, collect: "red_gem", dialog: "红宝石，闪烁着炽热的光芒" },
+      { id: "green_gem", name: "绿色宝石", sprite: "🟢", x: 180, y: 280, w: 40, h: 40, collect: "green_gem", dialog: "绿宝石，充满生机" },
+      { id: "tablet", name: "石碑", sprite: "📜", x: 280, y: 180, w: 60, h: 50, dialog: "铭文：'红在东，绿在西，蓝在北，三色归位'" }
+    ]
+  },
+  // 结局
+  ch3_end: {
+    name: "出口",
+    background: "#3a5a3a",
+    exits: [],
+    objects: [
+      { id: "door", name: "最终之门", sprite: "🚪", x: 150, y: 200, w: 80, h: 80, dialog: "Congratulations! 你逃出了谜境！", ending: true }
+    ]
+  }
+};
+
+const ITEMS = {
+  note: { name: "便签", icon: "📝", desc: "上面写着：'密码藏在画里'" },
+  flashlight: { name: "手电筒", icon: "🔦", desc: "可以照亮黑暗的地方" },
+  key: { name: "铜钥匙", icon: "🔑", desc: "打开铁门的钥匙" },
+  book: { name: "魔法书", icon: "📖", desc: "用光芒照亮答案" },
+  candle: { name: "蜡烛", icon: "🕯️", desc: "点燃后可以照亮黑暗" },
+  silver_key: { name: "银钥匙", icon: "🗝️", desc: "更高级的钥匙" },
+  blue_gem: { name: "蓝色水晶", icon: "💎", desc: "闪烁着蓝光" },
+  red_gem: { name: "红色宝石", icon: "🔴", desc: "炽热的红光" },
+  green_gem: { name: "绿色宝石", icon: "🟢", desc: "生机勃勃" },
+  compass: { name: "罗盘", icon: "🧭", desc: "指向北方" }
+};
+
+const PUZZLES = {
+  lever: {
+    title: "拉杆谜题",
+    type: "sequence",
+    correct: ["A", "B", "A", "B"],
+    hint: "按 A-B-A-B 顺序拉动"
+  },
+  rune: {
+    title: "符文密码",
+    type: "code",
+    answer: "210",
+    hint: "答案是：小时_分钟（看时钟）"
+  },
+  safe: {
+    title: "保险箱",
+    type: "code",
+    answer: "218",
+    hint: "注意照片里的人影数量"
+  },
+  altar: {
+    title: "祭坛",
+    type: "sequence",
+    correct: ["red", "blue", "green"],
+    hint: "按 红→蓝→绿 顺序放入"
+  }
+};
+
+// ==================== 游戏状态 ====================
+let currentUser = null;
+let player = { x: 180, y: 350 };
+let currentScene = "ch1_start";
+let inventory = [];
+let flags = {};
+let dialogQueue = [];
+let dialogIndex = 0;
+let showDialogFlag = false;
+let currentPuzzle = null;
+let puzzleSequence = [];
+let currentPuzzleType = null;
+let nearObject = null;
+
+// ==================== 初始化 ====================
+function init() {
+  checkAuth();
+  setupKeyboard();
+  setupMobileControls();
+}
+
+function checkAuth() {
+  const user = localStorage.getItem("puzzle_game_user");
+  if (user) {
+    currentUser = JSON.parse(user);
+    showScreen("menu-screen");
+    document.getElementById("welcome-text").textContent = `欢迎回来，${currentUser.username}`;
+  } else {
+    showScreen("login-screen");
+  }
+}
+
+function setupKeyboard() {
+  document.addEventListener("keydown", (e) => {
+    if (document.getElementById("dialog-overlay").classList.contains("show")) {
+      if (e.key === " " || e.key === "Enter") nextDialog();
+      return;
+    }
+    if (document.getElementById("inventory-overlay").classList.contains("show")) {
+      if (e.key === "Escape" || e.key === "i") toggleInventory();
+      return;
+    }
+    
+    switch (e.key.toLowerCase()) {
+      case "w": case "arrowup": move("up"); break;
+      case "s": case "arrowdown": move("down"); break;
+      case "a": case "arrowleft": move("left"); break;
+      case "d": case "arrowright": move("right"); break;
+      case "e": case " ": interact(); break;
+      case "i": toggleInventory(); break;
+      case "escape": showPause(); break;
+    }
+  });
+}
+
+function setupMobileControls() {
+  // 方向键点击
+  document.querySelectorAll(".dir-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const dir = btn.textContent.trim();
+      const map = { "▲": "up", "▼": "down", "◀": "left", "▶": "right" };
+      if (map[dir]) move(map[dir]);
+    });
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const dir = btn.textContent.trim();
+      const map = { "▲": "up", "▼": "down", "◀": "left", "▶": "right" };
+      if (map[dir]) move(map[dir]);
+    });
+  });
+}
+
+// ==================== 屏幕切换 ====================
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ==================== 认证 ====================
+function login() {
+  const username = document.getElementById("login-username").value.trim();
+  const password = document.getElementById("login-password").value;
+  const error = document.getElementById("login-error");
+  
+  if (!username || !password) {
+    error.textContent = "请输入用户名和密码";
+    return;
+  }
+  
+  const users = JSON.parse(localStorage.getItem("puzzle_game_users") || "{}");
+  if (users[username] && users[username].password === password) {
+    currentUser = { username, created: users[username].created };
+    localStorage.setItem("puzzle_game_user", JSON.stringify(currentUser));
+    showScreen("menu-screen");
+    document.getElementById("welcome-text").textContent = `欢迎回来，${username}`;
+    error.textContent = "";
+  } else {
+    error.textContent = "用户名或密码错误";
+  }
+}
+
+function register() {
+  const username = document.getElementById("reg-username").value.trim();
+  const password = document.getElementById("reg-password").value;
+  const password2 = document.getElementById("reg-password2").value;
+  const error = document.getElementById("reg-error");
+  
+  if (!username || !password) {
+    error.textContent = "请填写所有字段";
+    return;
+  }
+  if (password !== password2) {
+    error.textContent = "两次密码不一致";
+    return;
+  }
+  if (password.length < 4) {
+    error.textContent = "密码至少4位";
+    return;
+  }
+  
+  const users = JSON.parse(localStorage.getItem("puzzle_game_users") || "{}");
+  if (users[username]) {
+    error.textContent = "用户名已存在";
+    return;
+  }
+  
+  users[username] = { password, created: Date.now() };
+  localStorage.setItem("puzzle_game_users", JSON.stringify(users));
+  error.textContent = "";
+  alert("注册成功！请登录");
+  showScreen("login-screen");
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem("puzzle_game_user");
+  showScreen("login-screen");
+  document.getElementById("login-username").value = "";
+  document.getElementById("login-password").value = "";
+}
+
+// ==================== 游戏逻辑 ====================
+function startGame() {
+  // 重置游戏状态
+  player = { x: 180, y: 350 };
+  currentScene = "ch1_start";
+  inventory = [];
+  flags = {};
+  dialogQueue = [];
+  dialogIndex = 0;
+  puzzleSequence = [];
+  nearObject = null;
+  
+  loadScene();
+  showScreen("game-screen");
+}
+
+function loadGame() {
+  if (!currentUser) return;
+  const saves = JSON.parse(localStorage.getItem(`save_${currentUser.username}`) || "null");
+  if (saves) {
+    player = saves.player;
+    currentScene = saves.scene;
+    inventory = saves.inventory;
+    flags = saves.flags || {};
+    loadScene();
+    showScreen("game-screen");
+  } else {
+    startGame();
+  }
+}
+
+function saveGame() {
+  if (!currentUser) return;
+  const saveData = {
+    player, scene: currentScene, inventory, flags,
+    savedAt: Date.now()
+  };
+  localStorage.setItem(`save_${currentUser.username}`, JSON.stringify(saveData));
+  alert("游戏已保存！");
+  closePause();
+}
+
+function quitGame() {
+  closePause();
+  showScreen("menu-screen");
+}
+
+function loadScene() {
+  const scene = SCENES[currentScene];
+  const gameArea = document.getElementById("game-area");
+  
+  // 清空动态元素（保留player和header）
+  gameArea.querySelectorAll(".exit-indicator, .item-obj").forEach(el => el.remove());
+  
+  // 更新场景信息
+  document.getElementById("scene-name").textContent = scene.name;
+  document.getElementById("inventory-count").textContent = `物品: ${inventory.length}`;
+  gameArea.style.backgroundColor = scene.background;
+  
+  // 添加出口
+  scene.exits.forEach(exit => {
+    const div = document.createElement("div");
+    div.className = `exit-indicator exit-${exit.dir}`;
+    div.textContent = exit.dir === "up" ? "↑" : exit.dir === "down" ? "↓" : exit.dir === "left" ? "←" : "→";
+    if (exit.locked && !isExitUnlocked(exit)) {
+      div.style.opacity = "0.3";
+      div.title = "锁住";
+    }
+    gameArea.appendChild(div);
+  });
+  
+  // 添加物品
+  scene.objects.forEach(obj => {
+    const div = document.createElement("div");
+    div.className = "item-obj";
+    div.id = `obj_${obj.id}`;
+    div.textContent = obj.sprite;
+    div.style.left = obj.x + "px";
+    div.style.top = obj.y + "px";
+    
+    if (obj.collected && inventory.includes(obj.collect)) {
+      div.classList.add("collected");
+    }
+    
+    div.onclick = () => interactWith(obj);
+    gameArea.appendChild(div);
+  });
+  
+  // 更新玩家位置
+  updatePlayerPos();
+}
+
+function updatePlayerPos() {
+  const playerEl = document.getElementById("player");
+  playerEl.style.left = player.x + "px";
+  playerEl.style.top = player.y + "px";
+}
+
+function move(dir) {
+  const step = 20;
+  let newX = player.x, newY = player.y;
+  
+  switch (dir) {
+    case "up": newY = Math.max(60, player.y - step); break;
+    case "down": newY = Math.min(400, player.y + step); break;
+    case "left": newX = Math.max(20, player.x - step); break;
+    case "right": newX = Math.min(350, player.x + step); break;
+  }
+  
+  player.x = newX;
+  player.y = newY;
+  updatePlayerPos();
+  checkNearbyObjects();
+  checkExits();
+}
+
+function checkNearbyObjects() {
+  const scene = SCENES[currentScene];
+  nearObject = null;
+  let minDist = 80;
+  
+  scene.objects.forEach(obj => {
+    if (obj.collected && inventory.includes(obj.collect)) return;
+    const dx = (player.x + 17) - (obj.x + obj.w / 2);
+    const dy = (player.y + 22) - (obj.y + obj.h / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < minDist) {
+      minDist = dist;
+      nearObject = obj;
+    }
+  });
+  
+  document.getElementById("tip").textContent = nearObject 
+    ? `靠近 ${nearObject.name}，按 E 交互` 
+    : "靠近物品后按 E 键交互";
+}
+
+function interact() {
+  if (nearObject) {
+    interactWith(nearObject);
+  }
+}
+
+function interactWith(obj) {
+  if (obj.dialog) {
+    showDialog(obj.dialog.split("|"));
+  }
+  if (obj.collect && !inventory.includes(obj.collect)) {
+    setTimeout(() => {
+      inventory.push(obj.collect);
+      document.getElementById("inventory-count").textContent = `物品: ${inventory.length}`;
+      const el = document.getElementById(`obj_${obj.id}`);
+      if (el) el.classList.add("collected");
+    }, obj.dialog ? 500 : 0);
+  }
+  if (obj.puzzle) {
+    setTimeout(() => openPuzzle(obj.puzzle), obj.dialog ? 500 : 0);
+  }
+  if (obj.ending) {
+    setTimeout(() => {
+      alert("🎉 恭喜你逃出了谜境！\n\n感谢游玩！");
+    }, 300);
+  }
+}
+
+function checkExits() {
+  const scene = SCENES[currentScene];
+  const pw = 17, ph = 22; // player center offset
+  
+  scene.exits.forEach(exit => {
+    let canExit = false;
+    switch (exit.dir) {
+      case "up": canExit = player.y <= 100 && player.x >= 160 && player.x <= 220; break;
+      case "down": canExit = player.y >= 380 && player.x >= 160 && player.x <= 220; break;
+      case "left": canExit = player.x <= 30 && player.y >= 200 && player.y <= 280; break;
+      case "right": canExit = player.x >= 340 && player.y >= 200 && player.y <= 280; break;
+    }
+    
+    if (canExit) {
+      if (exit.locked && !isExitUnlocked(exit)) {
+        // 检查需要的物品
+        if (exit.requiresItem && !inventory.includes(exit.requiresItem)) {
+          // 显示提示
+        } else {
+          currentScene = exit.target;
+          loadScene();
+        }
+      } else {
+        currentScene = exit.target;
+        loadScene();
+      }
+    }
+  });
+}
+
+function isExitUnlocked(exit) {
+  if (currentScene === "ch1_door" && exit.dir === "down") return flags.lever_solved;
+  if (currentScene === "ch3_center" && exit.dir === "down") return flags.altar_solved;
+  return false;
+}
+
+// ==================== 对话框 ====================
+function showDialog(texts) {
+  dialogQueue = texts;
+  dialogIndex = 0;
+  showDialogFlag = true;
+  document.getElementById("dialog-text").textContent = dialogQueue[0];
+  document.getElementById("dialog-overlay").classList.add("show");
+}
+
+function nextDialog() {
+  dialogIndex++;
+  if (dialogIndex < dialogQueue.length) {
+    document.getElementById("dialog-text").textContent = dialogQueue[dialogIndex];
+  } else {
+    closeDialog();
+  }
+}
+
+function closeDialog() {
+  showDialogFlag = false;
+  dialogIndex = 0;
+  document.getElementById("dialog-overlay").classList.remove("show");
+}
+
+// ==================== 背包 ====================
+function toggleInventory() {
+  const overlay = document.getElementById("inventory-overlay");
+  if (overlay.classList.contains("show")) {
+    overlay.classList.remove("show");
+  } else {
+    renderInventory();
+    overlay.classList.add("show");
+  }
+}
+
+function renderInventory() {
+  const grid = document.getElementById("inventory-grid");
+  grid.innerHTML = "";
+  
+  if (inventory.length === 0) {
+    grid.innerHTML = '<p style="color:#666;text-align:center;grid-column:1/-1;padding:40px;">背包是空的</p>';
+    return;
+  }
+  
+  inventory.forEach(itemId => {
+    const item = ITEMS[itemId];
+    if (item) {
+      const div = document.createElement("div");
+      div.className = "inv-item";
+      div.innerHTML = `<span class="inv-icon">${item.icon}</span><span class="inv-name">${item.name}</span>`;
+      div.onclick = () => alert(item.name + "\n" + item.desc);
+      grid.appendChild(div);
+    }
+  });
+}
+
+// ==================== 谜题 ====================
+function openPuzzle(puzzleId) {
+  currentPuzzle = puzzleId;
+  const puzzle = PUZZLES[puzzleId];
+  document.getElementById("puzzle-title").textContent = puzzle.title;
+  
+  const content = document.getElementById("puzzle-content");
+  
+  if (puzzle.type === "code") {
+    puzzleSequence = [];
+    content.innerHTML = `
+      <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
+      <input type="text" id="puzzle-input" maxlength="10" placeholder="输入密码...">
+    `;
+    document.getElementById("puzzle-input").focus();
+  } else if (puzzle.type === "sequence") {
+    puzzleSequence = [];
+    if (puzzleId === "lever") {
+      content.innerHTML = `
+        <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
+        <div id="puzzle-sequence">
+          <button class="seq-btn" onclick="seqPress('A')">A</button>
+          <button class="seq-btn" onclick="seqPress('B')">B</button>
+          <button class="seq-btn" onclick="seqPress('C')">C</button>
+        </div>
+        <p id="seq-display" style="margin-top:10px;font-size:16px;">已选: 无</p>
+      `;
+    } else if (puzzleId === "altar") {
+      content.innerHTML = `
+        <p style="color:#666;margin-bottom:15px;">${puzzle.hint}</p>
+        <div id="puzzle-sequence">
+          <button class="seq-btn" style="background:#8B0000;" onclick="seqPress('red')">🔴</button>
+          <button class="seq-btn" style="background:#00008B;" onclick="seqPress('blue')">🔵</button>
+          <button class="seq-btn" style="background:#006400;" onclick="seqPress('green')">🟢</button>
+        </div>
+        <p id="seq-display" style="margin-top:10px;font-size:16px;">已选: 无</p>
+      `;
+    }
+  }
+  
+  document.getElementById("puzzle-overlay").classList.add("show");
+}
+
+function seqPress(val) {
+  if (puzzleSequence.length < 4) {
+    puzzleSequence.push(val);
+    document.getElementById("seq-display").textContent = `已选: ${puzzleSequence.join(" → ")}`;
+    
+    // 高亮显示
+    document.querySelectorAll(".seq-btn").forEach(btn => {
+      if (btn.textContent === val || btn.textContent.includes(val)) {
+        btn.classList.add("active");
+      }
+    });
+  }
+}
+
+function submitPuzzle() {
+  const puzzle = PUZZLES[currentPuzzle];
+  let correct = false;
+  
+  if (puzzle.type === "code") {
+    const input = document.getElementById("puzzle-input").value.trim();
+    correct = input === puzzle.answer;
+  } else if (puzzle.type === "sequence") {
+    correct = puzzleSequence.join(",") === puzzle.correct.join(",");
+  }
+  
+  if (correct) {
+    // 标记完成
+    if (currentPuzzle === "lever") flags.lever_solved = true;
+    if (currentPuzzle === "altar") flags.altar_solved = true;
+    
+    closePuzzle();
+    alert("🎉 解谜成功！");
+    loadScene(); // 刷新场景
+  } else {
+    alert("❌ 答案错误，再试试！");
+    puzzleSequence = [];
+    if (document.getElementById("seq-display")) {
+      document.getElementById("seq-display").textContent = "已选: 无";
+    }
+    document.querySelectorAll(".seq-btn").forEach(btn => btn.classList.remove("active"));
+  }
+}
+
+function closePuzzle() {
+  puzzleSequence = [];
+  currentPuzzle = null;
+  document.getElementById("puzzle-overlay").classList.remove("show");
+}
+
+// ==================== 暂停 ====================
+function showPause() {
+  document.getElementById("pause-overlay").style.display = "flex";
+}
+
+function closePause() {
+  document.getElementById("pause-overlay").style.display = "none";
+}
+
+// ==================== 启动 ====================
+window.onload = init;
+</script>
+</body>
+</html>

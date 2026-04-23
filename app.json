@@ -24,9 +24,7 @@
       "package": "com.puzzlegame.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "webpack"
-    },
-    "plugins": ["expo-secure-store"]
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

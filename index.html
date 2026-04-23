@@ -13,6 +13,30 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    
+    /* 强制横屏提示 */
+    #rotate-hint {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #1a1a2e;
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #fff;
+    }
+    #rotate-hint span { font-size: 60px; margin-bottom: 20px; }
+    #rotate-hint p { color: #4a9eff; }
+    @media (orientation: portrait) and (max-width: 768px) {
+      #rotate-hint { display: flex; }
+      .screen { display: none !important; }
+    }
+    
+    /* 横屏时隐藏提示 */
+    @media (orientation: landscape) {
+      #rotate-hint { display: none !important; }
+    }
     .screen { display: none; min-height: 100vh; padding: 20px; }
     .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
     
@@ -52,7 +76,7 @@
     /* 游戏容器 */
     #game-container {
       width: 100%;
-      max-width: 400px;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -61,13 +85,19 @@
     /* 游戏场景 */
     #game-area {
       width: 100%;
-      height: 450px;
+      height: 320px;
       background: #2a2a4e;
       border-radius: 15px;
       position: relative;
       overflow: hidden;
       border: 3px solid #333;
       touch-action: none;
+    }
+    
+    @media (max-width: 768px) {
+      #game-area {
+        height: 250px;
+      }
     }
     
     /* 场景顶部信息 */
@@ -332,13 +362,22 @@
   </style>
 </head>
 <body>
+<!-- 强制横屏提示 -->
+<div id="rotate-hint">
+  <span>📱</span>
+  <p>请将手机旋转至横屏</p>
+</div>
 
 <!-- 登录界面 -->
 <div id="login-screen" class="screen active">
   <h1 class="title">谜境逃脱</h1>
   <p class="subtitle">探索未知的谜境世界</p>
-  <input type="text" id="login-username" class="input" placeholder="用户名">
-  <input type="password" id="login-password" class="input" placeholder="密码">
+  <input type="text" id="login-username" class="input" placeholder="用户名" autocomplete="username">
+  <input type="password" id="login-password" class="input" placeholder="密码" autocomplete="current-password">
+  <label style="display:flex; align-items:center; gap:8px; margin:10px 0; color:#666; font-size:14px; cursor:pointer;">
+    <input type="checkbox" id="remember-me" style="width:18px; height:18px;">
+    记住密码
+  </label>
   <button class="btn btn-primary" onclick="login()">登录</button>
   <button class="btn btn-secondary" onclick="showScreen('register-screen')">注册账号</button>
   <p class="error" id="login-error"></p>
@@ -375,21 +414,21 @@
       </div>
       <div id="player">🧑</div>
       <!-- 动态生成出口和物品 -->
+      <!-- 交互按钮（靠近物体时显示） -->
+      <div id="interact-btn" onclick="interact()" style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); background:#e94560; color:#fff; padding:12px 30px; border-radius:25px; font-size:16px; font-weight:bold; z-index:20; animation:pulse 1s infinite; cursor:pointer;">
+        🤚 交互
+      </div>
     </div>
     <div id="controls">
-      <div id="joystick">
-        <div class="dir-empty"></div>
-        <div class="dir-btn" ontouchstart="move('up')">▲</div>
-        <div class="dir-empty"></div>
-        <div class="dir-btn" ontouchstart="move('left')">◀</div>
-        <div class="dir-empty"></div>
-        <div class="dir-btn" ontouchstart="move('right')">▶</div>
-        <div class="dir-empty"></div>
-        <div class="dir-btn" ontouchstart="move('down')">▼</div>
-        <div class="dir-empty"></div>
+      <!-- 虚拟摇杆（移动端） -->
+      <div id="mobile-joystick">
+        <div id="joystick-base">
+          <div id="joystick-thumb"></div>
+        </div>
       </div>
       <div id="action-btns">
-        <div class="action-btn" onclick="toggleInventory()">📦</div>
+        <div class="action-btn" id="inv-btn" onclick="toggleInventory()">📦</div>
+        <div class="action-btn" id="interact-mobile-btn" style="display:none; background:#e94560;" onclick="interact()">🤚</div>
         <div class="action-btn" onclick="showPause()">⏸</div>
       </div>
     </div>
@@ -401,6 +440,43 @@
     <p id="tip">靠近物品后按 E 键交互</p>
   </div>
 </div>
+
+<style>
+@keyframes pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.1); }
+}
+
+/* 虚拟摇杆 */
+#mobile-joystick {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+#joystick-base {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.1);
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  touch-action: none;
+}
+#joystick-thumb {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: rgba(233,69,96,0.8);
+  border: 2px solid #e94560;
+  border-radius: 50%;
+  left: 35px;
+  top: 35px;
+  transition: none;
+}
+@media (min-width: 768px) {
+  #mobile-joystick { display: none; }
+}
+</style>
 
 <!-- 对话框 -->
 <div id="dialog-overlay" onclick="nextDialog()">
@@ -622,14 +698,20 @@ function init() {
 }
 
 function checkAuth() {
-  const user = localStorage.getItem("puzzle_game_user");
-  if (user) {
-    currentUser = JSON.parse(user);
-    showScreen("menu-screen");
-    document.getElementById("welcome-text").textContent = `欢迎回来，${currentUser.username}`;
-  } else {
-    showScreen("login-screen");
+  // 不再自动登录，每次都要输入密码
+  // 但尝试填充记住的用户名
+  const savedUsername = localStorage.getItem("puzzle_game_remember_user");
+  const savedPassword = localStorage.getItem("puzzle_game_remember_pass");
+  
+  if (savedUsername) {
+    document.getElementById("login-username").value = savedUsername;
   }
+  if (savedPassword) {
+    document.getElementById("login-password").value = savedPassword;
+    document.getElementById("remember-me").checked = true;
+  }
+  
+  showScreen("login-screen");
 }
 
 function setupKeyboard() {
@@ -656,19 +738,73 @@ function setupKeyboard() {
 }
 
 function setupMobileControls() {
-  // 方向键点击
-  document.querySelectorAll(".dir-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const dir = btn.textContent.trim();
-      const map = { "▲": "up", "▼": "down", "◀": "left", "▶": "right" };
-      if (map[dir]) move(map[dir]);
-    });
-    btn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      const dir = btn.textContent.trim();
-      const map = { "▲": "up", "▼": "down", "◀": "left", "▶": "right" };
-      if (map[dir]) move(map[dir]);
-    });
+  const joystickBase = document.getElementById("joystick-base");
+  const joystickThumb = document.getElementById("joystick-thumb");
+  let moveInterval = null;
+  let currentDir = null;
+  
+  function handleJoystick(clientX, clientY) {
+    const rect = joystickBase.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    
+    const maxDist = rect.width / 2 - 25;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist > maxDist) {
+      dx = dx / dist * maxDist;
+      dy = dy / dist * maxDist;
+    }
+    
+    joystickThumb.style.left = (35 + dx) + "px";
+    joystickThumb.style.top = (35 + dy) + "px";
+    
+    // 判断方向
+    let dir = null;
+    if (dist > 15) {
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      if (angle > -45 && angle <= 45) dir = "right";
+      else if (angle > 45 && angle <= 135) dir = "down";
+      else if (angle > -135 && angle <= -45) dir = "up";
+      else dir = "left";
+    }
+    
+    if (dir !== currentDir) {
+      currentDir = dir;
+      if (moveInterval) {
+        clearInterval(moveInterval);
+        moveInterval = null;
+      }
+      if (dir) {
+        moveInterval = setInterval(() => move(dir), 100);
+      }
+    }
+  }
+  
+  joystickBase.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleJoystick(touch.clientX, touch.clientY);
+  });
+  
+  joystickBase.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleJoystick(touch.clientX, touch.clientY);
+  });
+  
+  joystickBase.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    joystickThumb.style.left = "35px";
+    joystickThumb.style.top = "35px";
+    currentDir = null;
+    if (moveInterval) {
+      clearInterval(moveInterval);
+      moveInterval = null;
+    }
   });
 }
 
@@ -682,6 +818,7 @@ function showScreen(id) {
 function login() {
   const username = document.getElementById("login-username").value.trim();
   const password = document.getElementById("login-password").value;
+  const remember = document.getElementById("remember-me").checked;
   const error = document.getElementById("login-error");
   
   if (!username || !password) {
@@ -692,7 +829,16 @@ function login() {
   const users = JSON.parse(localStorage.getItem("puzzle_game_users") || "{}");
   if (users[username] && users[username].password === password) {
     currentUser = { username, created: users[username].created };
-    localStorage.setItem("puzzle_game_user", JSON.stringify(currentUser));
+    
+    // 记住密码功能
+    if (remember) {
+      localStorage.setItem("puzzle_game_remember_user", username);
+      localStorage.setItem("puzzle_game_remember_pass", password);
+    } else {
+      localStorage.removeItem("puzzle_game_remember_user");
+      localStorage.removeItem("puzzle_game_remember_pass");
+    }
+    
     showScreen("menu-screen");
     document.getElementById("welcome-text").textContent = `欢迎回来，${username}`;
     error.textContent = "";
@@ -736,9 +882,8 @@ function register() {
 function logout() {
   currentUser = null;
   localStorage.removeItem("puzzle_game_user");
+  // 保留记住的用户名密码，只清除登录状态
   showScreen("login-screen");
-  document.getElementById("login-username").value = "";
-  document.getElementById("login-password").value = "";
 }
 
 // ==================== 游戏逻辑 ====================
@@ -873,9 +1018,21 @@ function checkNearbyObjects() {
     }
   });
   
-  document.getElementById("tip").textContent = nearObject 
-    ? `靠近 ${nearObject.name}，按 E 交互` 
-    : "靠近物品后按 E 键交互";
+  // 更新交互提示和按钮
+  const tipEl = document.getElementById("tip");
+  const interactBtn = document.getElementById("interact-btn");
+  const interactMobileBtn = document.getElementById("interact-mobile-btn");
+  
+  if (nearObject) {
+    tipEl.textContent = `靠近 ${nearObject.name}，按 E 交互`;
+    interactBtn.style.display = "block";
+    interactBtn.textContent = `🤚 交互 ${nearObject.name}`;
+    interactMobileBtn.style.display = "flex";
+  } else {
+    tipEl.textContent = "靠近物品后按 E 键交互";
+    interactBtn.style.display = "none";
+    interactMobileBtn.style.display = "none";
+  }
 }
 
 function interact() {

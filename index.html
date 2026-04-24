@@ -12,6 +12,7 @@
       color: #fff;
       min-height: 100vh;
       overflow-x: hidden;
+      touch-action: none;
     }
     
     /* 强制横屏提示 */
@@ -28,7 +29,7 @@
     }
     #rotate-hint span { font-size: 60px; margin-bottom: 20px; }
     #rotate-hint p { color: #4a9eff; }
-    @media (orientation: portrait) and (max-width: 768px) {
+    @media (orientation: portrait) and (max-width: 900px) {
       #rotate-hint { display: flex; }
       .screen { display: none !important; }
     }
@@ -68,7 +69,7 @@
     
     #game-container {
       width: 100%;
-      max-width: 600px;
+      max-width: 800px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -80,6 +81,7 @@
       border-radius: 10px;
       border: 3px solid #333;
       touch-action: none;
+      max-width: 100%;
     }
     
     #scene-header {
@@ -100,55 +102,61 @@
       padding: 15px 10px;
       margin-top: 10px;
     }
-    @media (max-width: 768px) { #mobile-controls { display: flex; } }
+    @media (max-width: 900px) { #mobile-controls { display: flex; } }
     
     #dpad {
       display: grid;
-      grid-template-columns: repeat(3, 50px);
-      grid-template-rows: repeat(2, 50px);
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(2, 60px);
       gap: 5px;
     }
     .dpad-btn {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       background: rgba(255,255,255,0.2);
       border: 2px solid rgba(255,255,255,0.4);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 24px;
       color: #fff;
       touch-action: none;
       user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
     }
-    .dpad-btn:active { background: rgba(255,255,255,0.4); }
+    .dpad-btn:active { background: rgba(255,255,255,0.5); transform: scale(0.95); }
     .dpad-empty { visibility: hidden; }
     
     #action-buttons {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
     }
     .action-btn {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 28px;
       touch-action: none;
       user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
     }
-    #btn-b {
-      background: #e94560;
-      border: 3px solid #ff6b8a;
+    #btn-jump {
+      background: #4CAF50;
+      border: 3px solid #81C784;
     }
-    #btn-a {
-      background: #4a9eff;
-      border: 3px solid #7bb8ff;
+    #btn-jump:active { background: #388E3C; }
+    #btn-inventory {
+      background: #FF9800;
+      border: 3px solid #FFB74D;
     }
+    #btn-inventory:active { background: #F57C00; }
     
     /* Web端提示 */
     #web-hint {
@@ -162,7 +170,7 @@
       border-radius: 5px;
       margin-top: 10px;
     }
-    @media (min-width: 768px) { #web-hint { display: block; } }
+    @media (min-width: 901px) { #web-hint { display: block; } }
     
     /* 对话框 */
     #dialog-overlay {
@@ -285,20 +293,20 @@
       <span id="scene-name">第1关</span>
       <span id="coin-count">金币: 0</span>
     </div>
-    <canvas id="game-canvas" width="600" height="400"></canvas>
-    <div id="web-hint">方向键/WASD 移动 | 空格/X 跳跃 | Z 加速 | ESC 暂停</div>
+    <canvas id="game-canvas" width="800" height="400"></canvas>
+    <div id="web-hint">方向键/WASD 移动 | 空格 跳跃 | ESC 暂停</div>
     <div id="mobile-controls">
       <div id="dpad">
         <div class="dpad-empty"></div>
-        <div class="dpad-btn" id="btn-up">▲</div>
+        <div class="dpad-empty"></div>
         <div class="dpad-empty"></div>
         <div class="dpad-btn" id="btn-left">◀</div>
-        <div class="dpad-empty"></div>
+        <div class="dpad-btn" id="btn-down">▼</div>
         <div class="dpad-btn" id="btn-right">▶</div>
       </div>
       <div id="action-buttons">
-        <div class="action-btn" id="btn-b" onclick="toggleInventory()">📦</div>
-        <div class="action-btn" id="btn-a" onclick="playerJump()">🏃</div>
+        <div class="action-btn" id="btn-jump">🏃</div>
+        <div class="action-btn" id="btn-inventory">📦</div>
       </div>
     </div>
   </div>
@@ -333,26 +341,26 @@
 
 <script>
 // ==================== 游戏常量 ====================
-const CANVAS_WIDTH = 600;
+const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
-const GRAVITY = 0.5;
-const JUMP_FORCE = -12;
-const MOVE_SPEED = 4;
-const TILE_SIZE = 32;
+const GRAVITY = 0.6;
+const JUMP_FORCE = -13;
+const MOVE_SPEED = 5;
 
 // ==================== 关卡数据 ====================
 const LEVELS = {
   level1: {
     name: "第1关 - 草地",
     background: "#5c94fc",
-    width: 1200,
+    width: 1600,
     height: 400,
     playerStart: { x: 50, y: 300 },
     platforms: [
       // 地面
       { x: 0, y: 368, w: 400, h: 32, type: "ground" },
       { x: 450, y: 368, w: 200, h: 32, type: "ground" },
-      { x: 700, y: 368, w: 500, h: 32, type: "ground" },
+      { x: 700, y: 368, w: 300, h: 32, type: "ground" },
+      { x: 1050, y: 368, w: 550, h: 32, type: "ground" },
       // 台阶
       { x: 150, y: 300, w: 64, h: 32, type: "brick" },
       { x: 250, y: 250, w: 96, h: 32, type: "brick" },
@@ -362,6 +370,11 @@ const LEVELS = {
       { x: 650, y: 220, w: 64, h: 32, type: "brick" },
       { x: 800, y: 280, w: 128, h: 32, type: "brick" },
       { x: 950, y: 180, w: 96, h: 32, type: "brick" },
+      // 中间区域
+      { x: 1100, y: 300, w: 64, h: 32, type: "brick" },
+      { x: 1200, y: 250, w: 64, h: 32, type: "brick" },
+      { x: 1300, y: 200, w: 96, h: 32, type: "brick" },
+      { x: 1450, y: 280, w: 100, h: 32, type: "brick" },
     ],
     // 隐藏方块（问号砖）
     hiddenBlocks: [
@@ -369,6 +382,10 @@ const LEVELS = {
       { x: 280, y: 218, w: 32, h: 32, contains: "mushroom", revealed: false },
       { x: 520, y: 248, w: 32, h: 32, contains: "coin", revealed: false },
       { x: 670, y: 188, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 970, y: 148, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 1110, y: 268, w: 32, h: 32, contains: "mushroom", revealed: false },
+      { x: 1210, y: 218, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 1310, y: 168, w: 32, h: 32, contains: "coin", revealed: false },
     ],
     coins: [
       { x: 100, y: 330 },
@@ -379,29 +396,29 @@ const LEVELS = {
       { x: 750, y: 180 },
       { x: 850, y: 240 },
       { x: 1000, y: 140 },
+      { x: 1150, y: 260 },
+      { x: 1250, y: 210 },
+      { x: 1350, y: 160 },
+      { x: 1500, y: 240 },
     ],
-    enemies: [
-      { x: 200, y: 336, type: "goomba" },
-      { x: 500, y: 336, type: "goomba" },
-      { x: 800, y: 336, type: "goomba" },
-    ],
-    goal: { x: 1100, y: 320, w: 64, h: 48 },
+    goal: { x: 1520, y: 320, w: 64, h: 48 },
     pipes: [
       { x: 350, y: 320, h: 48 },
       { x: 600, y: 320, h: 48 },
+      { x: 1000, y: 320, h: 48 },
     ]
   },
   level2: {
     name: "第2关 - 地下",
     background: "#1a1a2e",
-    width: 1200,
+    width: 1600,
     height: 400,
     playerStart: { x: 50, y: 300 },
     platforms: [
       // 地面
       { x: 0, y: 368, w: 300, h: 32, type: "ground" },
       { x: 350, y: 368, w: 150, h: 32, type: "ground" },
-      { x: 550, y: 368, w: 650, h: 32, type: "ground" },
+      { x: 550, y: 368, w: 1050, h: 32, type: "ground" },
       // 阶梯
       { x: 100, y: 300, w: 64, h: 32, type: "brick" },
       { x: 200, y: 250, w: 64, h: 32, type: "brick" },
@@ -411,12 +428,19 @@ const LEVELS = {
       { x: 600, y: 220, w: 128, h: 32, type: "brick" },
       { x: 800, y: 280, w: 96, h: 32, type: "brick" },
       { x: 950, y: 200, w: 128, h: 32, type: "brick" },
+      { x: 1100, y: 280, w: 96, h: 32, type: "brick" },
+      { x: 1250, y: 200, w: 128, h: 32, type: "brick" },
+      { x: 1400, y: 280, w: 96, h: 32, type: "brick" },
     ],
     hiddenBlocks: [
       { x: 120, y: 268, w: 32, h: 32, contains: "coin", revealed: false },
       { x: 220, y: 218, w: 32, h: 32, contains: "flower", revealed: false },
       { x: 470, y: 248, w: 32, h: 32, contains: "mushroom", revealed: false },
       { x: 620, y: 188, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 820, y: 248, w: 32, h: 32, contains: "mushroom", revealed: false },
+      { x: 970, y: 168, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 1120, y: 248, w: 32, h: 32, contains: "coin", revealed: false },
+      { x: 1270, y: 168, w: 32, h: 32, contains: "coin", revealed: false },
     ],
     coins: [
       { x: 50, y: 330 },
@@ -427,18 +451,17 @@ const LEVELS = {
       { x: 700, y: 180 },
       { x: 850, y: 240 },
       { x: 1000, y: 160 },
+      { x: 1150, y: 240 },
+      { x: 1300, y: 160 },
+      { x: 1450, y: 240 },
     ],
-    enemies: [
-      { x: 100, y: 336, type: "goomba" },
-      { x: 400, y: 336, type: "goomba" },
-      { x: 700, y: 336, type: "koopa" },
-      { x: 900, y: 336, type: "goomba" },
-    ],
-    goal: { x: 1100, y: 320, w: 64, h: 48 },
+    goal: { x: 1520, y: 320, w: 64, h: 48 },
     pipes: [
       { x: 280, y: 320, h: 48 },
       { x: 500, y: 320, h: 48 },
       { x: 750, y: 320, h: 48 },
+      { x: 1050, y: 320, h: 48 },
+      { x: 1350, y: 320, h: 48 },
     ]
   }
 };
@@ -456,19 +479,16 @@ let player = {
   vx: 0, vy: 0,
   width: 28, height: 32,
   onGround: false,
-  facing: 1, // 1 = 右, -1 = 左
+  facing: 1,
   coins: 0,
   inventory: [],
-  poweredUp: false,
-  invincible: false,
-  invincibleTimer: 0
+  poweredUp: false
 };
 
 // 关卡数据（运行时）
 let platforms = [];
 let hiddenBlocks = [];
 let coins = [];
-let enemies = [];
 let particles = [];
 
 // 相机
@@ -478,9 +498,11 @@ let camera = { x: 0 };
 let keys = {
   left: false,
   right: false,
-  jump: false,
-  sprint: false
+  down: false
 };
+
+// 移动端跳跃状态
+let jumpPressed = false;
 
 // ==================== 初始化 ====================
 function init() {
@@ -517,11 +539,10 @@ function setupKeyboard() {
     switch (e.key.toLowerCase()) {
       case "a": case "arrowleft": keys.left = true; break;
       case "d": case "arrowright": keys.right = true; break;
-      case "w": case " ": case "x":
-        if (!keys.jump && player.onGround) playerJump();
-        keys.jump = true;
+      case "s": case "arrowdown": keys.down = true; break;
+      case "w": case " ":
+        if (player.onGround) playerJump();
         break;
-      case "z": keys.sprint = true; break;
       case "escape": showPause(); break;
       case "i": toggleInventory(); break;
     }
@@ -531,8 +552,7 @@ function setupKeyboard() {
     switch (e.key.toLowerCase()) {
       case "a": case "arrowleft": keys.left = false; break;
       case "d": case "arrowright": keys.right = false; break;
-      case "w": case " ": case "x": keys.jump = false; break;
-      case "z": keys.sprint = false; break;
+      case "s": case "arrowdown": keys.down = false; break;
     }
   });
 }
@@ -540,30 +560,38 @@ function setupKeyboard() {
 function setupMobileControls() {
   const btnLeft = document.getElementById("btn-left");
   const btnRight = document.getElementById("btn-right");
-  const btnUp = document.getElementById("btn-up");
-  const btnA = document.getElementById("btn-a");
+  const btnDown = document.getElementById("btn-down");
+  const btnJump = document.getElementById("btn-jump");
+  const btnInventory = document.getElementById("btn-inventory");
   
-  // 移动按钮
-  function handleTouch(btn, key, isPressed) {
-    btn.addEventListener(isPressed ? "touchstart" : "touchend", (e) => {
-      e.preventDefault();
-      keys[key] = isPressed;
-    }, { passive: false });
-    btn.addEventListener(isPressed ? "mousedown" : "mouseup", () => {
-      keys[key] = isPressed;
-    });
-  }
+  // 左按钮
+  btnLeft.addEventListener("touchstart", (e) => { e.preventDefault(); keys.left = true; }, { passive: false });
+  btnLeft.addEventListener("touchend", (e) => { e.preventDefault(); keys.left = false; }, { passive: false });
+  btnLeft.addEventListener("mousedown", () => keys.left = true);
+  btnLeft.addEventListener("mouseup", () => keys.left = false);
+  btnLeft.addEventListener("mouseleave", () => keys.left = false);
   
-  handleTouch(btnLeft, "left", true);
-  handleTouch(btnRight, "right", true);
-  handleTouch(btnLeft.parentElement, "left", false);
-  handleTouch(btnRight.parentElement, "right", false);
+  // 右按钮
+  btnRight.addEventListener("touchstart", (e) => { e.preventDefault(); keys.right = true; }, { passive: false });
+  btnRight.addEventListener("touchend", (e) => { e.preventDefault(); keys.right = false; }, { passive: false });
+  btnRight.addEventListener("mousedown", () => keys.right = true);
+  btnRight.addEventListener("mouseup", () => keys.right = false);
+  btnRight.addEventListener("mouseleave", () => keys.right = false);
+  
+  // 下按钮（用于下蹲或下落）
+  btnDown.addEventListener("touchstart", (e) => { e.preventDefault(); keys.down = true; }, { passive: false });
+  btnDown.addEventListener("touchend", (e) => { e.preventDefault(); keys.down = false; }, { passive: false });
+  btnDown.addEventListener("mousedown", () => keys.down = true);
+  btnDown.addEventListener("mouseup", () => keys.down = false);
+  btnDown.addEventListener("mouseleave", () => keys.down = false);
   
   // 跳跃按钮
-  btnA.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    if (player.onGround) playerJump();
-  }, { passive: false });
+  btnJump.addEventListener("touchstart", (e) => { e.preventDefault(); if (player.onGround) playerJump(); }, { passive: false });
+  btnJump.addEventListener("click", () => { if (player.onGround) playerJump(); });
+  
+  // 背包按钮
+  btnInventory.addEventListener("touchstart", (e) => { e.preventDefault(); toggleInventory(); }, { passive: false });
+  btnInventory.addEventListener("click", () => toggleInventory());
 }
 
 // ==================== 屏幕切换 ====================
@@ -572,6 +600,8 @@ function showScreen(id) {
   document.getElementById(id).classList.add("active");
   
   if (id === "game-screen" && !gameRunning) {
+    canvas = document.getElementById("game-canvas");
+    ctx = canvas.getContext("2d");
     startGameLoop();
   } else if (id !== "game-screen" && gameRunning) {
     stopGameLoop();
@@ -657,9 +687,7 @@ function startGame() {
     facing: 1,
     coins: 0,
     inventory: [],
-    poweredUp: false,
-    invincible: false,
-    invincibleTimer: 0
+    poweredUp: false
   };
   
   loadLevel(currentLevel);
@@ -694,17 +722,6 @@ function loadLevel(levelId) {
   // 初始化金币
   coins = level.coins.map(c => ({...c, collected: false}));
   
-  // 初始化敌人
-  enemies = level.enemies.map(e => ({
-    ...e,
-    vx: -1,
-    y: e.y,
-    width: 28,
-    height: 28,
-    alive: true,
-    walkDist: 0
-  }));
-  
   // 重置玩家位置
   player.x = level.playerStart.x;
   player.y = level.playerStart.y;
@@ -717,10 +734,6 @@ function loadLevel(levelId) {
   
   // 清空粒子
   particles = [];
-  
-  // 设置画布背景
-  canvas = document.getElementById("game-canvas");
-  ctx = canvas.getContext("2d");
 }
 
 function startGameLoop() {
@@ -745,21 +758,18 @@ function gameLoop() {
 }
 
 function update() {
-  const speed = keys.sprint ? MOVE_SPEED * 1.5 : MOVE_SPEED;
-  
   // 水平移动
   if (keys.left) {
-    player.vx = -speed;
+    player.vx = -MOVE_SPEED;
     player.facing = -1;
   } else if (keys.right) {
-    player.vx = speed;
+    player.vx = MOVE_SPEED;
     player.facing = 1;
   } else {
     player.vx *= 0.8;
     if (Math.abs(player.vx) < 0.1) player.vx = 0;
   }
   
-  // 跳跃（如果需要）
   // 重力
   player.vy += GRAVITY;
   if (player.vy > 15) player.vy = 15;
@@ -773,18 +783,26 @@ function update() {
   for (const plat of platforms) {
     if (rectCollision(player, plat)) {
       // 从上面落下
-      if (player.vy > 0 && player.y + player.height - player.vy <= plat.y + 5) {
-        player.y = plat.y - player.height;
-        player.vy = 0;
-        player.onGround = true;
+      if (player.vy > 0) {
+        const prevBottom = player.y + player.height - player.vy;
+        if (prevBottom <= plat.y + 5) {
+          player.y = plat.y - player.height;
+          player.vy = 0;
+          player.onGround = true;
+          continue;
+        }
       }
       // 从下面撞到
-      else if (player.vy < 0 && player.y - player.vy >= plat.y + plat.h - 5) {
-        player.y = plat.y + plat.h;
-        player.vy = 0;
+      if (player.vy < 0) {
+        const prevTop = player.y - player.vy;
+        if (prevTop >= plat.y + plat.h - 5) {
+          player.y = plat.y + plat.h;
+          player.vy = 0;
+          continue;
+        }
       }
       // 左右碰撞
-      else if (player.vx > 0) {
+      if (player.vx > 0) {
         player.x = plat.x - player.width;
       } else if (player.vx < 0) {
         player.x = plat.x + plat.w;
@@ -792,14 +810,17 @@ function update() {
     }
   }
   
-  // 隐藏方块碰撞
+  // 隐藏方块碰撞（只有已揭示的才能站上去）
   for (const block of hiddenBlocks) {
     if (!block.revealed) continue;
     if (rectCollision(player, block)) {
-      if (player.vy > 0 && player.y + player.height - player.vy <= block.y + 5) {
-        player.y = block.y - player.height;
-        player.vy = 0;
-        player.onGround = true;
+      if (player.vy > 0) {
+        const prevBottom = player.y + player.height - player.vy;
+        if (prevBottom <= block.y + 5) {
+          player.y = block.y - player.height;
+          player.vy = 0;
+          player.onGround = true;
+        }
       }
     }
   }
@@ -810,7 +831,7 @@ function update() {
       const headBox = { x: player.x, y: player.y - player.vy - 5, width: player.width, height: 10 };
       if (rectCollision(headBox, block)) {
         revealBlock(block);
-        player.vy = 0;
+        player.vy = 2; // 轻微弹回
       }
     }
   }
@@ -826,50 +847,6 @@ function update() {
     }
   }
   
-  // 敌人AI
-  for (const enemy of enemies) {
-    if (!enemy.alive) continue;
-    
-    enemy.x += enemy.vx;
-    enemy.walkDist += Math.abs(enemy.vx);
-    
-    // 敌人掉落检测
-    enemy.y += 10; // 快速下落检测
-    let onPlatform = false;
-    for (const plat of platforms) {
-      if (rectCollision({ x: enemy.x, y: enemy.y, width: enemy.width, height: enemy.height }, plat)) {
-        enemy.y = plat.y - enemy.height;
-        onPlatform = true;
-        break;
-      }
-    }
-    
-    // 敌人碰到边界反向
-    if (onPlatform) {
-      for (const plat of platforms) {
-        if (enemy.x <= plat.x || enemy.x + enemy.width >= plat.x + plat.w) {
-          if (Math.abs(enemy.x - plat.x) < 5 || Math.abs(enemy.x + enemy.width - plat.x - plat.w) < 5) {
-            enemy.vx *= -1;
-          }
-        }
-      }
-    }
-    enemy.y -= 10;
-    
-    // 玩家踩敌人
-    if (player.vy > 0 && rectCollision(player, enemy)) {
-      if (player.y + player.height - player.vy <= enemy.y + 10) {
-        enemy.alive = false;
-        player.vy = JUMP_FORCE * 0.6;
-        createParticles(enemy.x + 14, enemy.y + 14, "#8B4513", 8);
-      } else if (!player.invincible) {
-        hitPlayer();
-      }
-    } else if (!player.invincible && rectCollision(player, enemy)) {
-      hitPlayer();
-    }
-  }
-  
   // 粒子更新
   particles = particles.filter(p => {
     p.x += p.vx;
@@ -879,26 +856,22 @@ function update() {
     return p.life > 0;
   });
   
-  // 无敌时间
-  if (player.invincible) {
-    player.invincibleTimer--;
-    if (player.invincibleTimer <= 0) {
-      player.invincible = false;
-    }
-  }
-  
-  // 相机跟随
+  // 相机跟随 - 平滑跟随玩家
   const targetCam = player.x - CANVAS_WIDTH / 3;
-  camera.x = Math.max(0, Math.min(targetCam, (LEVELS[currentLevel]?.width || CANVAS_WIDTH) - CANVAS_WIDTH));
+  const levelWidth = LEVELS[currentLevel]?.width || CANVAS_WIDTH;
+  camera.x += (targetCam - camera.x) * 0.1; // 平滑插值
+  camera.x = Math.max(0, Math.min(camera.x, levelWidth - CANVAS_WIDTH));
   
   // 边界检测
   if (player.x < 0) player.x = 0;
-  if (player.y > CANVAS_HEIGHT) {
-    // 掉落了
-    hitPlayer();
+  if (player.x > levelWidth - player.width) player.x = levelWidth - player.width;
+  
+  // 掉落了
+  if (player.y > CANVAS_HEIGHT + 50) {
     player.x = LEVELS[currentLevel].playerStart.x;
     player.y = LEVELS[currentLevel].playerStart.y;
     player.vy = 0;
+    player.vx = 0;
   }
   
   // 到达终点
@@ -909,6 +882,7 @@ function update() {
 }
 
 function revealBlock(block) {
+  if (block.revealed) return;
   block.revealed = true;
   createParticles(block.x + 16, block.y + 16, "#ffd700", 8);
   
@@ -918,9 +892,11 @@ function revealBlock(block) {
   } else if (block.contains === "mushroom") {
     player.poweredUp = true;
     player.height = 44;
+    player.y -= 12;
   } else if (block.contains === "flower") {
     player.poweredUp = true;
     player.height = 44;
+    player.y -= 12;
   }
 }
 
@@ -928,24 +904,6 @@ function playerJump() {
   if (player.onGround) {
     player.vy = JUMP_FORCE;
     player.onGround = false;
-  }
-}
-
-function hitPlayer() {
-  if (player.invincible) return;
-  
-  if (player.poweredUp) {
-    player.poweredUp = false;
-    player.height = 32;
-    player.invincible = true;
-    player.invincibleTimer = 120;
-  } else {
-    // 死亡，重生
-    player.x = LEVELS[currentLevel].playerStart.x;
-    player.y = LEVELS[currentLevel].playerStart.y;
-    player.vy = 0;
-    player.invincible = true;
-    player.invincibleTimer = 120;
   }
 }
 
@@ -990,7 +948,7 @@ function render() {
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   
   ctx.save();
-  ctx.translate(-camera.x, 0);
+  ctx.translate(-Math.round(camera.x), 0);
   
   // 绘制地面
   for (const plat of platforms) {
@@ -999,16 +957,24 @@ function render() {
       ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
       ctx.fillStyle = "#228B22";
       ctx.fillRect(plat.x, plat.y, plat.w, 8);
+      // 草丛
+      ctx.fillStyle = "#32CD32";
+      for (let i = 0; i < plat.w; i += 8) {
+        if (Math.random() > 0.7) {
+          ctx.fillRect(plat.x + i, plat.y - 3, 2, 5);
+        }
+      }
     } else {
       ctx.fillStyle = "#CD853F";
       ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
       ctx.strokeStyle = "#8B4513";
+      ctx.lineWidth = 2;
       ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
       // 砖块纹理
       ctx.fillStyle = "#DEB887";
       for (let i = 0; i < plat.w; i += 32) {
         for (let j = 0; j < plat.h; j += 16) {
-          ctx.fillRect(plat.x + i + 1, plat.y + j + 1, 30, 14);
+          ctx.fillRect(plat.x + i + 2, plat.y + j + 2, 28, 12);
         }
       }
     }
@@ -1017,28 +983,36 @@ function render() {
   // 绘制隐藏方块
   for (const block of hiddenBlocks) {
     if (block.revealed) {
+      // 已揭示的方块变成普通砖块
       ctx.fillStyle = "#CD853F";
       ctx.fillRect(block.x, block.y, block.w, block.h);
-      ctx.fillStyle = "#FFD700";
-      ctx.font = "20px Arial";
-      ctx.fillText("?", block.x + 8, block.y + 24);
+      ctx.strokeStyle = "#8B4513";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(block.x, block.y, block.w, block.h);
     } else {
+      // 问号方块
       ctx.fillStyle = "#FFD700";
       ctx.fillRect(block.x, block.y, block.w, block.h);
       ctx.fillStyle = "#FFA500";
-      ctx.font = "bold 20px Arial";
-      ctx.fillText("?", block.x + 8, block.y + 24);
+      ctx.fillRect(block.x, block.y, block.w, 4);
+      // 问号
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 22px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("?", block.x + 16, block.y + 25);
+      ctx.textAlign = "left";
     }
   }
   
   // 绘制金币
   for (const coin of coins) {
     if (coin.collected) continue;
+    // 金币发光
     ctx.fillStyle = "#FFD700";
     ctx.beginPath();
-    ctx.arc(coin.x + 12, coin.y + 12, 10, 0, Math.PI * 2);
+    ctx.arc(coin.x + 12, coin.y + 12, 12, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#FFA500";
+    ctx.fillStyle = "#FFF59D";
     ctx.beginPath();
     ctx.arc(coin.x + 10, coin.y + 10, 4, 0, Math.PI * 2);
     ctx.fill();
@@ -1050,77 +1024,70 @@ function render() {
       // 管道顶部
       ctx.fillStyle = "#228B22";
       ctx.fillRect(pipe.x, pipe.y, 48, 16);
+      ctx.fillStyle = "#32CD32";
+      ctx.fillRect(pipe.x + 2, pipe.y + 2, 8, 12);
       // 管道身
       ctx.fillStyle = "#32CD32";
       ctx.fillRect(pipe.x, pipe.y + 16, 48, pipe.h - 16);
-      // 管道高光
-      ctx.fillStyle = "#90EE90";
-      ctx.fillRect(pipe.x + 4, pipe.y + 20, 8, pipe.h - 24);
-    }
-  }
-  
-  // 绘制敌人
-  for (const enemy of enemies) {
-    if (!enemy.alive) continue;
-    if (enemy.type === "goomba") {
-      ctx.fillStyle = "#8B4513";
-      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(enemy.x + 4, enemy.y + 8, 6, 6);
-      ctx.fillRect(enemy.x + 18, enemy.y + 8, 6, 6);
-      // 脚
-      ctx.fillStyle = "#654321";
-      ctx.fillRect(enemy.x + 2, enemy.y + enemy.height - 6, 10, 6);
-      ctx.fillRect(enemy.x + 16, enemy.y + enemy.height - 6, 10, 6);
-    } else if (enemy.type === "koopa") {
       ctx.fillStyle = "#228B22";
-      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      ctx.fillStyle = "#FFD700";
-      ctx.fillRect(enemy.x + 8, enemy.y + 8, 12, 8);
+      ctx.fillRect(pipe.x, pipe.y + 16, 8, pipe.h - 16);
     }
   }
   
   // 绘制终点旗杆
   if (level.goal) {
+    // 旗杆
     ctx.fillStyle = "#228B22";
-    ctx.fillRect(level.goal.x + 28, level.goal.y, 8, level.goal.h + 20);
+    ctx.fillRect(level.goal.x + 28, level.goal.y - 50, 8, level.goal.h + 50);
+    // 旗子
     ctx.fillStyle = "#FF4444";
-    ctx.fillRect(level.goal.x + 8, level.goal.y, 48, 32);
+    ctx.fillRect(level.goal.x + 8, level.goal.y - 50, 48, 32);
+    // 旗子图案
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "20px Arial";
-    ctx.fillText("🏁", level.goal.x + 16, level.goal.y + 24);
+    ctx.font = "18px Arial";
+    ctx.fillText("🏁", level.goal.x + 16, level.goal.y - 25);
   }
   
   // 绘制粒子
   for (const p of particles) {
     ctx.fillStyle = p.color;
     ctx.globalAlpha = p.life / 30;
-    ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
     ctx.globalAlpha = 1;
   }
   
   // 绘制玩家
-  if (!player.invincible || Math.floor(Date.now() / 100) % 2 === 0) {
-    // 身体
-    ctx.fillStyle = player.poweredUp ? "#FF4444" : "#FF9966";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    
-    // 帽子
-    ctx.fillStyle = "#E94560";
-    ctx.fillRect(player.x, player.y, player.width, 8);
-    
-    // 眼睛
-    ctx.fillStyle = "#FFF";
-    const eyeOffset = player.facing > 0 ? 12 : 4;
-    ctx.fillRect(player.x + eyeOffset, player.y + 10, 6, 6);
-    ctx.fillStyle = "#000";
-    ctx.fillRect(player.x + eyeOffset + 2, player.y + 12, 3, 3);
-    
-    // 衣服
-    if (player.poweredUp) {
-      ctx.fillStyle = "#FF0000";
-      ctx.fillRect(player.x, player.y + 20, player.width, 12);
-    }
+  const px = Math.round(player.x);
+  const py = Math.round(player.y);
+  
+  // 身体
+  ctx.fillStyle = player.poweredUp ? "#FF4444" : "#FF9966";
+  ctx.fillRect(px, py, player.width, player.height);
+  
+  // 帽子
+  ctx.fillStyle = "#E94560";
+  ctx.fillRect(px, py, player.width, 8);
+  if (player.poweredUp) {
+    ctx.fillStyle = "#FF0000";
+    ctx.fillRect(px - 2, py, player.width + 4, 4);
+  }
+  
+  // 眼睛
+  ctx.fillStyle = "#FFF";
+  const eyeOffset = player.facing > 0 ? 14 : 4;
+  ctx.fillRect(px + eyeOffset, py + 12, 8, 8);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(px + eyeOffset + (player.facing > 0 ? 4 : 0), py + 14, 4, 4);
+  
+  // 鞋子
+  ctx.fillStyle = "#8B4513";
+  if (player.poweredUp) {
+    ctx.fillRect(px, py + player.height - 8, player.width, 8);
+  } else {
+    ctx.fillRect(px, py + player.height - 6, 12, 6);
+    ctx.fillRect(px + 16, py + player.height - 6, 12, 6);
   }
   
   ctx.restore();
